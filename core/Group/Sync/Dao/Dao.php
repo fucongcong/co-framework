@@ -188,4 +188,50 @@ class Dao
 
         return $connection;
     }
+
+    protected function search(&$queryBuilder, $andWhere, $condition)
+    {
+        foreach ($andWhere as $key => $value) {
+            if (isset($condition[$key])) {
+                if ($this->isInCondition($value)) {
+                    $marks = array();
+                    if (empty($condition[$key])) continue;
+                    
+                    foreach (array_values($condition[$key]) as $index => $one) {
+                        $marks[] = ":{$key}_{$index}";
+                        $condition["{$key}_{$index}"] = $one;
+                    }
+                    $value = str_replace(":{$key}", join(',', $marks), $value);
+                    unset($condition[$key]);
+                }
+                $queryBuilder->andWhere($value);
+            }
+        }
+
+        foreach ($condition as $key => $value) {
+            $queryBuilder->setParameter(":{$key}", $value);
+        }
+    }
+
+    protected function bindValues($stmt, $conditions, $names)
+    {
+        foreach ($names as $name) {
+            if (!empty($name)) {
+                $stmt->bindValue($name, $conditions[$name]);
+            }
+        }
+
+        $stmt->execute();
+        return $stmt;
+    }
+
+    private function isInCondition($where)
+    {
+        $matched = preg_match('/\s+(IN)\s+/', $where, $matches);
+        if (empty($matched)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
