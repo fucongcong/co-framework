@@ -5,6 +5,8 @@ namespace Group\Controller;
 use Group\Contracts\Controller\Controller as ControllerContract;
 use Group\Exceptions\NotFoundException;
 use Config;
+use Cookie;
+use Firebase\JWT\JWT;
 
 class Controller implements ControllerContract
 {
@@ -69,6 +71,46 @@ class Controller implements ControllerContract
     public function redirect($url, $status = 302)
     {   
         return new \Response('', $status, ['location' => $url]);
+    }
+
+    public function setJwt($request, $data, $response)
+    {   
+        $httpHost = Config::get('jwt::domain');
+        $exprieTime = time() + Config::get('jwt::exprieTime');
+        $token = array(
+            'data' => $data,
+            "iss" => $httpHost,
+            "aud" => $httpHost,
+            "iat" => time(),
+            "exp" => $exprieTime
+        );
+
+        $jwt = JWT::encode($token, Config::get('jwt::privateKey'), 'RS256');
+        $response->headers->setCookie(new Cookie('JWT', $jwt, $exprieTime, '/', $httpHost));
+
+        return $response;
+    }
+
+    public function pasreJwt($request)
+    {   
+        $jwt = $request->cookies->get('JWT');
+        $tks = explode('.', $jwt);
+        if (count($tks) != 3) {
+            return false;;
+        }
+
+        $data = JWT::decode($jwt, Config::get('jwt::publicKey'), array('RS256'));
+        $data =  (array) $data;
+
+        return $data['data'];
+    }
+
+    public function clearJwt($request, $response)
+    {   
+        $httpHost = Config::get('jwt::domain');
+        $response->headers->clearCookie('JWT', '/', $httpHost);
+
+        return $response;
     }
 
     public function __call($method, $parameters)
