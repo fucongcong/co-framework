@@ -1,5 +1,6 @@
 <?php
 return [
+/****************FRAMEWORK CONFIG*********************/
     // prod|dev
     'environment' => 'dev',
 
@@ -40,13 +41,14 @@ return [
         ],
     ],
 
+/****************SERVER CONFIG*********************/
     'host' => '127.0.0.1',
 
     'port' => 9777,
 
     'setting' => [
         //日志
-        'daemonize' => true,
+        //'daemonize' => true,
         'log_file' => 'runtime/error.log',
         'worker_num' => 2,    //worker process num
         'backlog' => 256,   //listen backlog
@@ -55,6 +57,15 @@ return [
         'dispatch_mode' => 1, 
         'max_request' => 10000,
     ],
+
+    //在启动时可以添加用户自定义的工作进程,必须是swoole_process
+    'process' => [
+        //是服务中心时候
+        'src\Admin\Process\HeartbeatProcess',
+    ],
+
+    //依赖的服务模块
+    'services' => ["User", "Order", "Monitor", "NodeCenter"],
 
     //此参数可不填。通信协议 eof：结束符, buf：包头+包体。也可以填自定义的customProtocols
     'protocol' => 'buf',
@@ -65,10 +76,5 @@ return [
 
     'customProtocols' => [
         'myeof' => 'src\Web\Protocol\MyeofProtocol',
-    ],
-
-    //在启动时可以添加用户自定义的工作进程,必须是swoole_process
-    'process' => [
-        'src\Admin\Process\HeartbeatProcess',
     ],
 ];

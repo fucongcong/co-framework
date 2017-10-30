@@ -3,11 +3,12 @@
 namespace Group;
 
 use Group\App\App;
-use swoole_http_server;
 use Group\Coroutine\Scheduler;
 use Group\Container\Container;
 use Group\Config\Config;
+use Group\Process\RedisRegistryProcess;
 use swoole_process;
+use swoole_http_server;
 
 class SwooleKernal
 {   
@@ -27,6 +28,7 @@ class SwooleKernal
         $host = Config::get('app::host') ? : "127.0.0.1";
         $port = Config::get('app::port') ? : 9777;
         $setting = Config::get('app::setting');
+        $registryAddress = Config::get('service::registry_address');
 
         $this->http = new swoole_http_server($host, $port);
         $this->http->set($setting);
@@ -37,9 +39,11 @@ class SwooleKernal
         $this->http->on('WorkerExit', [$this, 'onWorkerExit']);
         $this->http->on('Request', [$this, 'onRequest']);
         $this->http->on('shutdown', [$this, 'onShutdown']);
-        
+
         $this->addProcesses();
         
+        $this->registry($registryAddress);
+
         $this->start();
     }
 
@@ -135,6 +139,30 @@ class SwooleKernal
             $p = new $process($this->http);
             $this->http->addProcess($p->register());
         }
+    }
+
+    public function registry($registryAddress)
+    {   
+        preg_match("/^(.*):\/\/(.*):(.*)$/", $registryAddress, $matches);
+        if (!$matches) {
+            return;
+        }
+
+        switch ($matches[1]) {
+            case 'redis':
+                $this->http->on('pipeMessage', [$this, 'onPipeRegistryMessage']);
+                $registry = new RedisRegistryProcess($this->http, $matches[2], $matches[3]);
+                $this->http->addProcess($registry->register());
+                break;
+            default:
+                break;
+        }
+    }
+
+    public function onPipeRegistryMessage($serv, $src_worker_id, $data)
+    {   
+        list($service, $address) = explode("::", $data);
+        \StaticCache::set("Service:".$service, $address, false);
     }
 
     private function mkDir($dir)

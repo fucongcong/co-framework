@@ -7,6 +7,9 @@ return [
     //'node_center' => '',
     'node_center' => 'http://groupco.com',
 
+    //注册中心
+    'registry_address' => 'redis://127.0.0.1:6379',
+
     //配置service
     'server' => [
         'node_center' => [
