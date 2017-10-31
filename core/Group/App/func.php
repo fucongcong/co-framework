@@ -64,10 +64,15 @@ function service_center($serviceName)
     $container = (yield getContainer());
 
     if (!$container->singleton('serviceCenter')->getService($serviceName)) {
-        $res = (yield service('node_center')->call("NodeCenter\NodeCenter::getService", ['serviceName' => $serviceName], false, false));
-        $container->singleton('serviceCenter')->setService($serviceName, $res['ip'], $res['port']);
+        // $res = (yield service('node_center')->call("NodeCenter\NodeCenter::getService", ['serviceName' => $serviceName], false, false));
+        //$container->singleton('serviceCenter')->setService($serviceName, $res['ip'], $res['port']);
+        $url = \StaticCache::get("Service:{$serviceName}", false);
+        if ($url) {echo $url;
+            list($ip, $port) = explode(":", $url);
+            $container->singleton('serviceCenter')->setService($serviceName, $ip, $port);
+        }
     }
-
+        
     $container->singleton('serviceCenter')->setContainer($container);
     yield $container->singleton('serviceCenter')->createService($serviceName);
 }

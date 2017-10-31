@@ -20,6 +20,8 @@ class SwooleKernal
 
     protected $pidPath;
 
+    protected $registryAddress;
+
     public function init()
     {   
         $this->pidPath = __ROOT__."runtime/pid";
@@ -28,7 +30,7 @@ class SwooleKernal
         $host = Config::get('app::host') ? : "127.0.0.1";
         $port = Config::get('app::port') ? : 9777;
         $setting = Config::get('app::setting');
-        $registryAddress = Config::get('service::registry_address');
+        $this->registryAddress = Config::get('service::registry_address');
 
         $this->http = new swoole_http_server($host, $port);
         $this->http->set($setting);
@@ -42,7 +44,7 @@ class SwooleKernal
 
         $this->addProcesses();
         
-        $this->registry($registryAddress);
+        $this->registry($this->registryAddress);
 
         $this->start();
     }
@@ -80,6 +82,9 @@ class SwooleKernal
             swoole_set_process_name("php http server: worker");
         }
         
+        //启动的时候拉取一次服务
+        $this->getServicesList();
+
         echo "HTTP Worker Start...".PHP_EOL;
     }
 
@@ -141,9 +146,9 @@ class SwooleKernal
         }
     }
 
-    public function registry($registryAddress)
+    public function registry()
     {   
-        preg_match("/^(.*):\/\/(.*):(.*)$/", $registryAddress, $matches);
+        preg_match("/^(.*):\/\/(.*):(.*)$/", $this->registryAddress, $matches);
         if (!$matches) {
             return;
         }
@@ -151,8 +156,8 @@ class SwooleKernal
         switch ($matches[1]) {
             case 'redis':
                 $this->http->on('pipeMessage', [$this, 'onPipeRegistryMessage']);
-                $registry = new RedisRegistryProcess($this->http, $matches[2], $matches[3]);
-                $this->http->addProcess($registry->register());
+                $registry = new RedisRegistryProcess($matches[2], $matches[3], $this->http);
+                $this->http->addProcess($registry->subscribe());
                 break;
             default:
                 break;
@@ -163,6 +168,23 @@ class SwooleKernal
     {   
         list($service, $address) = explode("::", $data);
         \StaticCache::set("Service:".$service, $address, false);
+    }
+
+    private function getServicesList()
+    {
+        preg_match("/^(.*):\/\/(.*):(.*)$/", $this->registryAddress, $matches);
+        if (!$matches) {
+            return;
+        }
+
+        switch ($matches[1]) {
+            case 'redis':
+                $registry = new RedisRegistryProcess($matches[2], $matches[3]);
+                $registry->getList();
+                break;
+            default:
+                break;
+        }
     }
 
     private function mkDir($dir)

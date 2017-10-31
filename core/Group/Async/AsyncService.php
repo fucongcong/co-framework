@@ -51,7 +51,7 @@ class AsyncService
         if ($this->service) {
             $cmd = $this->service."\\".$cmd;
         }
-
+        
         $data = Protocol::pack($cmd, $data);
         $client = new Client($this->serv, $this->port);
         $client = $client->getClient();

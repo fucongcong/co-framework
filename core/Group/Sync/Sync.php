@@ -49,9 +49,9 @@ class Sync
         if (!isset($argv[1])) return;
 
         $config = \Config::get("service::server");
-        $node_center = \Config::get("service::node_center");
-        if ($node_center && $node_center != "") {
-            $config[$argv[1]]['node_center'] = $node_center;
+        $registry_address = \Config::get("service::registry_address");
+        if ($registry_address && $registry_address != "") {
+            $config[$argv[1]]['registry_address'] = $registry_address;
         }
         
         if (!isset($config[$argv[1]])) return;

@@ -42,13 +42,15 @@ return [
     ],
 
 /****************SERVER CONFIG*********************/
-    'host' => '127.0.0.1',
+    //本机当前内网ip
+    'ip' => '127.0.0.1',
 
+    'host' => '0.0.0.0',
     'port' => 9777,
 
     'setting' => [
         //日志
-        //'daemonize' => true,
+        'daemonize' => true,
         'log_file' => 'runtime/error.log',
         'worker_num' => 2,    //worker process num
         'backlog' => 256,   //listen backlog
@@ -58,10 +60,8 @@ return [
         'max_request' => 10000,
     ],
 
-    //在启动时可以添加用户自定义的工作进程,必须是swoole_process
+    //在启动时可以添加用户自定义的工作进程,必须是swoole_process,请继承Group\Process抽象类
     'process' => [
-        //是服务中心时候
-        'src\Admin\Process\HeartbeatProcess',
     ],
 
     //依赖的服务模块
