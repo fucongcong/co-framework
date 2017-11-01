@@ -410,7 +410,9 @@ class Server
     public function registerNode()
     {   
         $services = $this->getServices();
-        $process = new \Group\Process\RedisRegistryProcess("127.0.0.1", 6379);
+        $process = $this->getRegistryProcess();
+        if (!$process) return;
+
         //若服务中心挂了，可以一直wait
         while (true) {
             $res = $process->register($services);
@@ -428,7 +430,8 @@ class Server
     public function removeNode()
     {   
         $services = $this->getServices();
-        $process = new \Group\Process\RedisRegistryProcess("127.0.0.1", 6379);
+        $process = $this->getRegistryProcess();
+        if (!$process) return;
 
         //若服务中心挂了，可以一直wait
         while (true) {
@@ -439,6 +442,24 @@ class Server
            sleep(2);
         }
         unset($process);
+    }
+
+    private function getRegistryProcess()
+    {   
+        preg_match("/^(.*):\/\/(.*):(.*)$/", $this->config['registry_address'], $matches);
+        if (!$matches) {
+            return false;
+        }
+
+        switch ($matches[1]) {
+            case 'redis':
+                return new \Group\Process\RedisRegistryProcess($matches[2], $matches[3]);
+                break;
+            default:
+                break;
+        }
+
+        return false;
     }
 
     private function getServices()
