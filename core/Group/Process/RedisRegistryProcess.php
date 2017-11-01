@@ -55,6 +55,14 @@ class RedisRegistryProcess
         return $process;
     }
 
+    public function unSubscribe()
+    {
+        $services = Config::get("app::services");
+        foreach ($services as $service) {
+            $this->redis->sRem('Consumers:'.$service, Config::get("app::ip").":".Config::get("app::port"));
+        }
+    }
+
     //先不考虑reids持久化数据问题
     public function register($services)
     {   
