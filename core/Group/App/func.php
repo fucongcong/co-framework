@@ -72,7 +72,7 @@ function service_center($serviceName)
             $container->singleton('serviceCenter')->setService($serviceName, $ip, $port);
         }
     }
-        
+
     $container->singleton('serviceCenter')->setContainer($container);
     yield $container->singleton('serviceCenter')->createService($serviceName);
 }

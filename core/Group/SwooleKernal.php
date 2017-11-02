@@ -166,8 +166,22 @@ class SwooleKernal
 
     public function onPipeRegistryMessage($serv, $src_worker_id, $data)
     {   
-        list($service, $address) = explode("::", $data);
-        \StaticCache::set("Service:".$service, $address, false);
+        list($service, $addresses) = explode("::", $data);
+        $addresses = json_decode($addresses, true);
+        if (empty($addresses)) {
+            \StaticCache::set("ServiceList:".$service, null, false);
+            \StaticCache::set("Service:".$service, null, false);
+            return;
+        }
+
+        shuffle($addresses);
+        \StaticCache::set("ServiceList:".$service, $addresses, false);
+
+        //如果当前服务地址已经失效
+        $current = \StaticCache::get("Service:".$service, false);
+        if ($addresses && !in_array($current, $addresses)) {
+            \StaticCache::set("Service:".$service, $addresses[0], false);
+        }
     }
 
     private function getServicesList()

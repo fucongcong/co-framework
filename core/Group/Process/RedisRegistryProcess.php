@@ -33,16 +33,15 @@ class RedisRegistryProcess
         $server = $this->server;
         $redis = $this->redis;
         $process = new swoole_process(function($process) use ($server, $redis, $services) {
-            //订阅服务,这里可以把服务列表cache，做服务降级，切换
+            //订阅服务
             $redis->subscribe($services, function ($redis, $chan, $msg) use ($server) {
                 $redis = new Redis;
                 $redis->connect($this->host, $this->port);
-                $address = $redis->sRandMember('Providers:'.$chan);
-                if (!$address) {
-                    $address = 0;
-                }
+                $addresses = $redis->sMembers('Providers:'.$chan);
+                $addresses = json_encode($addresses);
+                
                 for ($i=0; $i < $server->setting['worker_num']; $i++) {
-                    $server->sendMessage($chan."::".$address, $i);
+                    $server->sendMessage($chan."::".$addresses, $i);
                 }
                 unset($redis);
             });
@@ -91,6 +90,8 @@ class RedisRegistryProcess
     {
         $services = Config::get("app::services");
         foreach ($services as $service) {
+            $addresses = $this->redis->sMembers('Providers:'.$service);
+            \StaticCache::set("ServiceList:".$service, $addresses, false);
             $address = $this->redis->sRandMember('Providers:'.$service);
             \StaticCache::set("Service:".$service, $address, false);
         }
