@@ -248,7 +248,9 @@ class SwooleKernal
                     break;
                 case 'restart':
                     $this->serverStop();
+                    echo "正在启动...".PHP_EOL;
                     $this->init(false);
+                    echo "启动完成".PHP_EOL;
                     break;
                 default:
                     break;
