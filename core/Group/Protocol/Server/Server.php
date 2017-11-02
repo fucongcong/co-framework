@@ -7,6 +7,7 @@ use Group\Exceptions\NotFoundException;
 use Group\Common\ClassMap;
 use Group\Protocol\ServiceProtocol as Protocol;
 use Group\Protocol\DataPack;
+use Group\Config\Config;
 use swoole_table;
 use swoole_process;
 use swoole_server;
@@ -55,7 +56,19 @@ class Server
         $this->serv->on('Task', [$this, 'onTask']);
         $this->serv->on('Finish', [$this, 'onFinish']);
 
+        if (isset($config['process']) && is_array($config['process'])) {
+            $this->addProcesses($config['process']);
+        }
+
         $this->serv->start();
+    }
+
+    public function addProcesses($processes)
+    {   
+        foreach ($processes as $process) {
+            $p = new $process($this->serv);
+            $this->serv->addProcess($p->register());
+        }
     }
 
     public function parse($data)
@@ -337,7 +350,7 @@ class Server
     }
 
     private function checkStatus()
-    {   
+    {
         if(isset($this->argv[2])) {
 
             if (!file_exists($this->pidPath)) {
@@ -369,8 +382,8 @@ class Server
                         }
                     }
                     echo "关闭完成".PHP_EOL;
-                    @unlink($this->pidPath);
                     $this->removeNode();
+                    @unlink($this->pidPath);
                     break;
                 default:
                     break;
@@ -396,8 +409,61 @@ class Server
      */
     public function registerNode()
     {   
-        if  (!isset($this->config['node_center'])) return;
-        
+        $services = $this->getServices();
+        $process = $this->getRegistryProcess();
+        if (!$process) return;
+
+        //若服务中心挂了，可以一直wait
+        while (true) {
+            $res = $process->register($services);
+            if ($res == true) {
+                break;
+            }
+            sleep(2);
+        }
+        unset($process);
+    }
+
+    /**
+     * 向服务治理中心移除当前节点
+     */
+    public function removeNode()
+    {   
+        $services = $this->getServices();
+        $process = $this->getRegistryProcess();
+        if (!$process) return;
+
+        //若服务中心挂了，可以一直wait
+        while (true) {
+           $res = $process->unRegister($services);
+           if ($res == true) {
+               break;
+           }
+           sleep(2);
+        }
+        unset($process);
+    }
+
+    private function getRegistryProcess()
+    {   
+        preg_match("/^(.*):\/\/(.*):(.*)$/", $this->config['registry_address'], $matches);
+        if (!$matches) {
+            return false;
+        }
+
+        switch ($matches[1]) {
+            case 'redis':
+                return new \Group\Process\RedisRegistryProcess($matches[2], $matches[3]);
+                break;
+            default:
+                break;
+        }
+
+        return false;
+    }
+
+    private function getServices()
+    {
         $map = new ClassMap();
         $services = array_unique($map->doSearch());
 
@@ -410,58 +476,13 @@ class Server
             }
             $services = $publics;
         }
-        $services = implode(',', $services);
 
-        $data = [
-            'ip' => $this->config['ip'],
-            'port' => $this->config['port'],
-            'serverName' => $this->servName,
-            'services' => $services,
-        ];
-
-        //若服务中心挂了，可以一直wait
-        while (true) {
-           $res = $this->post($this->config['node_center']."/node/add", $data);
-            if ($res == 1) {
-                break;
-            }
-            sleep(2);
+        $data = [];
+        $url = $this->config['ip'].":".$this->config['port'];
+        foreach ($services as $service) {
+            $data[$service] = $url;
         }
-    }
 
-    /**
-     * 向服务治理中心移除当前节点
-     */
-    public function removeNode()
-    {   
-        if  (!isset($this->config['node_center'])) return;
-
-        $data = [
-            'ip' => $this->config['ip'],
-            'port' => $this->config['port'],
-        ];
-
-        //若服务中心挂了，可以一直wait
-        while (true) {
-           $res = $this->post($this->config['node_center']."/node/remove", $data);
-            if ($res == 1) {
-                break;
-            }
-            sleep(2);
-        }
-    }
-
-    public function post($url, $postData)
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5); 
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-        $output = curl_exec($ch);
-        curl_close($ch);
-
-        return $output;
+        return $data;
     }
 }

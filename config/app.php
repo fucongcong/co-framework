@@ -1,5 +1,6 @@
 <?php
 return [
+/****************FRAMEWORK CONFIG*********************/
     // prod|dev
     'environment' => 'dev',
 
@@ -39,9 +40,12 @@ return [
             'help' => '清除日志', //提示
         ],
     ],
+//**修改一下配置后需要restart server。reload不生效！
+/****************SERVER CONFIG*********************/
+    //本机当前内网ip
+    'ip' => '127.0.0.1',
 
-    'host' => '127.0.0.1',
-
+    'host' => '0.0.0.0',
     'port' => 9777,
 
     'setting' => [
@@ -56,6 +60,13 @@ return [
         'max_request' => 10000,
     ],
 
+    //在启动时可以添加用户自定义的工作进程,必须是swoole_process,请继承Group\Process抽象类
+    'process' => [
+    ],
+
+    //依赖的服务模块 
+    'services' => ["User", "Order", "Monitor", "NodeCenter"],
+
     //此参数可不填。通信协议 eof：结束符, buf：包头+包体。也可以填自定义的customProtocols
     'protocol' => 'buf',
     //包体的打包方式json,serialize
@@ -65,10 +76,5 @@ return [
 
     'customProtocols' => [
         'myeof' => 'src\Web\Protocol\MyeofProtocol',
-    ],
-
-    //在启动时可以添加用户自定义的工作进程,必须是swoole_process
-    'process' => [
-        'src\Admin\Process\HeartbeatProcess',
     ],
 ];

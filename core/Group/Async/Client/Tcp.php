@@ -84,6 +84,7 @@ class Tcp extends Base
             if (!$this->isFinish) {
 
                 $data = $this->parse($data);
+                
                 $this->return[] = $data;
 
                 $this->count--;
