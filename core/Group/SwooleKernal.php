@@ -22,15 +22,14 @@ class SwooleKernal
 
     protected $registryAddress;
 
-    public function init()
+    public function init($check = true)
     {   
         $this->pidPath = __ROOT__."runtime/pid";
-        $this->checkStatus();
+        if ($check) $this->checkStatus();
 
         $host = Config::get('app::host') ? : "127.0.0.1";
         $port = Config::get('app::port') ? : 9777;
         $setting = Config::get('app::setting');
-        $this->registryAddress = Config::get('service::registry_address');
 
         $this->http = new swoole_http_server($host, $port);
         $this->http->set($setting);
@@ -44,7 +43,7 @@ class SwooleKernal
 
         $this->addProcesses();
         
-        $this->registry($this->registryAddress);
+        $this->subscribe();
 
         $this->start();
     }
@@ -63,7 +62,8 @@ class SwooleKernal
     }
 
     public function onShutdown($serv)
-    {
+    {   
+        @unlink($this->pidPath);
         echo "HTTP Server Shutdown...".PHP_EOL;
     }
 
@@ -146,22 +146,14 @@ class SwooleKernal
         }
     }
 
-    public function registry()
+    public function subscribe()
     {   
-        preg_match("/^(.*):\/\/(.*):(.*)$/", $this->registryAddress, $matches);
-        if (!$matches) {
-            return;
-        }
+        $registry = $this->getRegistryProcess();
+        if (!$registry) return;
 
-        switch ($matches[1]) {
-            case 'redis':
-                $this->http->on('pipeMessage', [$this, 'onPipeRegistryMessage']);
-                $registry = new RedisRegistryProcess($matches[2], $matches[3], $this->http);
-                $this->http->addProcess($registry->subscribe());
-                break;
-            default:
-                break;
-        }
+        $this->http->on('pipeMessage', [$this, 'onPipeRegistryMessage']);
+        $registry->setServer($this->http);
+        $this->http->addProcess($registry->subscribe());
     }
 
     public function onPipeRegistryMessage($serv, $src_worker_id, $data)
@@ -184,21 +176,36 @@ class SwooleKernal
         }
     }
 
-    private function getServicesList()
+    private function getRegistryProcess()
     {
-        preg_match("/^(.*):\/\/(.*):(.*)$/", $this->registryAddress, $matches);
+        preg_match("/^(.*):\/\/(.*):(.*)$/", Config::get('service::registry_address'), $matches);
         if (!$matches) {
-            return;
+            return false;
         }
 
         switch ($matches[1]) {
             case 'redis':
-                $registry = new RedisRegistryProcess($matches[2], $matches[3]);
-                $registry->getList();
+                return new \Group\Process\RedisRegistryProcess($matches[2], $matches[3]);
                 break;
             default:
                 break;
         }
+
+        return false;
+    }
+
+    private function unSubscribe()
+    {   
+        $registry = $this->getRegistryProcess();
+        if (!$registry) return;
+        $registry->unSubscribe();
+    }
+
+    private function getServicesList()
+    {   
+        $registry = $this->getRegistryProcess();
+        if (!$registry) return;
+        $registry->getList();
     }
 
     private function mkDir($dir)
@@ -237,22 +244,35 @@ class SwooleKernal
                     swoole_process::daemon(true);
                     break;
                 case 'stop':
-                    $pid = file_get_contents($this->pidPath);
-                    echo "当前进程".$pid.PHP_EOL;
-                    echo "正在关闭".PHP_EOL;
-                    if ($pid) {
-                        if (swoole_process::kill($pid, 0)) {
-                            swoole_process::kill($pid, SIGTERM);
-                        }
-                    }
-                    echo "关闭完成".PHP_EOL;
-                    @unlink($this->pidPath);
+                    $this->serverStop();
+                    break;
+                case 'restart':
+                    $this->serverStop();
+                    $this->init(false);
                     break;
                 default:
                     break;
             }
             exit;
         }
+    }
+
+    private function serverStop()
+    {
+        $this->unSubscribe();
+        $pid = file_get_contents($this->pidPath);
+        echo "当前进程".$pid.PHP_EOL;
+        echo "正在关闭".PHP_EOL;
+        if ($pid) {
+            if (swoole_process::kill($pid, 0)) {
+                swoole_process::kill($pid, SIGTERM);
+            }
+        }
+
+        while (file_exists($this->pidPath)) {
+            sleep(1);
+        }
+        echo "关闭完成".PHP_EOL;
     }
 
     public function fix_gpc_magic($request)

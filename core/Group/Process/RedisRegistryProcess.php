@@ -17,13 +17,17 @@ class RedisRegistryProcess
 
     public $redis;
 
-    public function __construct($host, $port, $server = "")
+    public function __construct($host, $port)
     {
-        $this->server = $server;
         $this->host = $host;
         $this->port = $port;
         $this->redis = new Redis;
         $this->redis->connect($this->host, $this->port);
+    }
+
+    public function setServer($server)
+    {
+        $this->server = $server;
     }
 
     public function subscribe()
@@ -39,7 +43,7 @@ class RedisRegistryProcess
                 $redis->connect($this->host, $this->port);
                 $addresses = $redis->sMembers('Providers:'.$chan);
                 $addresses = json_encode($addresses);
-                
+
                 for ($i=0; $i < $server->setting['worker_num']; $i++) {
                     $server->sendMessage($chan."::".$addresses, $i);
                 }
