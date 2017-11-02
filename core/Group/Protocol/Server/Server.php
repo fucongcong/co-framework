@@ -67,7 +67,10 @@ class Server
     {   
         foreach ($processes as $process) {
             $p = new $process($this->serv);
-            $this->serv->addProcess($p->register());
+            $pro = $p->register();
+            if ($pro) {
+                $this->serv->addProcess($pro);
+            }
         }
     }
 

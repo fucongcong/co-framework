@@ -16,7 +16,7 @@ class RedisHeartbeatProcess extends Process
         $server = $this->server;
         preg_match("/^(.*):\/\/(.*):(.*)$/", Config::get('service::registry_address'), $matches);
         if (!$matches && $matches[1] != "redis") {
-            return;
+            return false;
         }
         $redis = new Redis;
         $redis->connect($matches[2], $matches[3]);
