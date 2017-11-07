@@ -10,19 +10,27 @@ use Group\Config\Config;
 use Redis;
 
 class RedisHeartbeatProcess extends Process
-{
+{   
+    public $host;
+
+    public $port;
+
+    public $redis;
+
+    public function __construct($host, $port, $query = "")
+    {
+        $this->host = $host;
+        $this->port = $port;
+        $this->redis = new Redis;
+        $this->redis->connect($this->host, $this->port);
+    }
+
     public function register()
-    {   
-        $server = $this->server;
-        preg_match("/^(.*):\/\/(.*):(.*)$/", Config::get('service::registry_address'), $matches);
-        if (!$matches && $matches[1] != "redis") {
-            return false;
-        }
-        $redis = new Redis;
-        $redis->connect($matches[2], $matches[3]);
-        $process = new swoole_process(function($process) use ($server, $redis) {
+    {
+        $redis = $this->redis;
+        $process = new swoole_process(function($process) use ($redis) {
             //心跳检测
-            $server->tick(5000, function() use ($redis) {
+            swoole_timer_tick(5000, function() use ($redis) {
                 $services = $redis->sMembers('Providers');
                 foreach ($services as $service) {
                     $addresses = $redis->sMembers('Providers:'.$service);

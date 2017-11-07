@@ -2,12 +2,14 @@
 
 namespace Group\Process;
 
+use Group\Process\RegistryProcess;
 use swoole_process;
 use Group\Process;
 use Group\Config\Config;
 use Redis;
+use StaticCache;
 
-class RedisRegistryProcess
+class RedisRegistryProcess extends RegistryProcess
 {   
     public $server;
 
@@ -17,17 +19,12 @@ class RedisRegistryProcess
 
     public $redis;
 
-    public function __construct($host, $port)
+    public function __construct($host, $port, $query = "")
     {
         $this->host = $host;
         $this->port = $port;
         $this->redis = new Redis;
         $this->redis->connect($this->host, $this->port);
-    }
-
-    public function setServer($server)
-    {
-        $this->server = $server;
     }
 
     public function subscribe()
@@ -95,9 +92,9 @@ class RedisRegistryProcess
         $services = Config::get("app::services");
         foreach ($services as $service) {
             $addresses = $this->redis->sMembers('Providers:'.$service);
-            \StaticCache::set("ServiceList:".$service, $addresses, false);
+            StaticCache::set("ServiceList:".$service, $addresses, false);
             $address = $this->redis->sRandMember('Providers:'.$service);
-            \StaticCache::set("Service:".$service, $address, false);
+            StaticCache::set("Service:".$service, $address, false);
         }
     }
 }

@@ -33,4 +33,11 @@ interface Config
      */
     public function getConfig();
 
+    /**
+     * read config
+     *
+     * @param  configName,  name::key
+     * @return array
+     */
+    public function read($configName);
 }

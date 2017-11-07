@@ -20,8 +20,6 @@ class SwooleKernal
 
     protected $pidPath;
 
-    protected $registryAddress;
-
     public function init($check = true)
     {   
         $this->pidPath = __ROOT__."runtime/pid";
@@ -128,8 +126,8 @@ class SwooleKernal
         unset($request);
         unset($response);
         //$this->fix_gpc_magic($request);
-        // $this->scheduler->newTask($this->app->terminate($request, $response));
-        // $this->scheduler->run();
+        //$this->scheduler->newTask($this->app->terminate($request, $response));
+        //$this->scheduler->run();
     }
 
     public function start()
@@ -154,6 +152,7 @@ class SwooleKernal
         $this->http->on('pipeMessage', [$this, 'onPipeRegistryMessage']);
         $registry->setServer($this->http);
         $this->http->addProcess($registry->subscribe());
+        unset($registry);
     }
 
     public function onPipeRegistryMessage($serv, $src_worker_id, $data)
@@ -163,6 +162,10 @@ class SwooleKernal
         if (empty($addresses)) {
             \StaticCache::set("ServiceList:".$service, null, false);
             \StaticCache::set("Service:".$service, null, false);
+            return;
+        }
+
+        if ($addresses == \StaticCache::get("ServiceList:".$service, null, false)) {
             return;
         }
 
@@ -177,21 +180,24 @@ class SwooleKernal
     }
 
     private function getRegistryProcess()
-    {
-        preg_match("/^(.*):\/\/(.*):(.*)$/", Config::get('service::registry_address'), $matches);
-        if (!$matches) {
+    {   
+        $address = Config::get('service::registry_address');
+        if (empty($address)) return false;
+
+        $address = parse_url($address);
+        if (is_null($address) || !isset($address['scheme'])) {
             return false;
         }
 
-        switch ($matches[1]) {
-            case 'redis':
-                return new \Group\Process\RedisRegistryProcess($matches[2], $matches[3]);
-                break;
-            default:
-                break;
+        $scheme = $address['scheme'];
+        $registry = "Group\\Process\\{$scheme}RegistryProcess";
+        if (!class_exists($registry)) {
+            return false;
         }
 
-        return false;
+        if (!isset($address['query'])) $address['query'] = "";
+        
+        return new $registry($address['host'], $address['port'], $address['query']);
     }
 
     private function unSubscribe()
@@ -206,6 +212,7 @@ class SwooleKernal
         $registry = $this->getRegistryProcess();
         if (!$registry) return;
         $registry->getList();
+        unset($registry);
     }
 
     private function mkDir($dir)

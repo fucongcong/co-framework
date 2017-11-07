@@ -46,7 +46,9 @@ class Config implements ConfigContract
 
         if (count($configName) == 2) {
             $config = $this->checkConfig($configName[0]);
-            return $config[$configName[0]][$configName[1]];
+            if (isset($config[$configName[0]][$configName[1]])) {
+                return $config[$configName[0]][$configName[1]];
+            }
         }
 
         return array();
