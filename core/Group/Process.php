@@ -17,4 +17,9 @@ abstract class Process
      * @return Service
      */
     abstract public function register();
+
+    public function setServer($server)
+    {
+        $this->server = $server;
+    }
 }

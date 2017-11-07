@@ -3,6 +3,7 @@
 namespace Group\Sync\Dao;
 
 use Group\Sync\Dao\ConnectionLocator;
+use Group\Config\Config;
 
 class Dao
 {
@@ -12,8 +13,13 @@ class Dao
 
     public function __construct()
     {
-        $pdo = \Config::get('database::pdo');
+        $pdo = Config::get('database::pdo');
         $this->config = $pdo;
+    }
+
+    public function setConfig($config)
+    {
+        $this->config = $config;
     }
 
     /**
@@ -114,12 +120,16 @@ class Dao
                         $connection->query($sql);
                     }
                 break;
+            default:
             case 'default':
                     return $this->getDefault()->query($sql);
                 break;
-            default:
-                break;
         }
+    }
+
+    public function removeConnection()
+    {
+        self::$connection = null;
     }
 
     protected function getConnection()

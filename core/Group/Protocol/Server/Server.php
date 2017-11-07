@@ -449,20 +449,20 @@ class Server
 
     private function getRegistryProcess()
     {   
-        preg_match("/^(.*):\/\/(.*):(.*)$/", $this->config['registry_address'], $matches);
-        if (!$matches) {
+        $address = parse_url($this->config['registry_address']);
+        if (!$address || !isset($address['scheme'])) {
             return false;
         }
 
-        switch ($matches[1]) {
-            case 'redis':
-                return new \Group\Process\RedisRegistryProcess($matches[2], $matches[3]);
-                break;
-            default:
-                break;
+        $scheme = $address['scheme'];
+        $registry = "Group\\Process\\{$scheme}RegistryProcess";
+        if (!class_exists($registry)) {
+            return false;
         }
 
-        return false;
+        if (!isset($address['query'])) $address['query'] = "";
+        
+        return new $registry($address['host'], $address['port'], $address['query']);
     }
 
     private function getServices()
