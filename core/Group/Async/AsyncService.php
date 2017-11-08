@@ -49,7 +49,13 @@ class AsyncService
         }
 
         if ($this->service) {
-            $cmd = $this->service."\\".$cmd;
+            if (is_array($cmd)) {
+                foreach ($cmd as &$one) {
+                    $one = $this->service."\\".$one;
+                }
+            } else {
+                $cmd = $this->service."\\".$cmd;
+            }
         }
         
         $data = Protocol::pack($cmd, $data);
@@ -97,7 +103,7 @@ class AsyncService
 
     public function multiCall()
     {   
-        $res = (yield $this->call($this->calls['cmd'], $this->calls['data'], $timeout));
+        $res = (yield $this->call($this->calls['cmd'], $this->calls['data'], $this->timeout));
         $this->callId = 0;
         $this->calls = [];
         yield $res;
