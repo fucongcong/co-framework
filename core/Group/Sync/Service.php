@@ -65,16 +65,14 @@ class Service
         }
     }
 
- //    //需要支持不同目录
- //    public function createService($serviceName)
- //    {
- //        list($group, $serviceName) = explode(":", $serviceName);
- //        // return  \Rpc::service("{$group}:{$serviceName}");
- //        $class = $serviceName."ServiceImpl";
- //        $serviceName = "src\\Services\\".$group."\\Impl\\".$class;
+    public function createService($serviceName)
+    {
+        list($group, $serviceName) = explode(":", $serviceName);
+        $class = $serviceName."ServiceImpl";
+        $serviceName = "src\\Service\\$group\\Service\\Impl\\$class";;
 
- //        return app()->singleton(strtolower($serviceName), function() use ($serviceName) {
- //            return new $serviceName();
- //        });
- //    }
+        return app()->singleton(strtolower($serviceName), function() use ($serviceName) {
+            return new $serviceName($this->serv, $this->fd, $this->jobId, $this->fromId);
+        });
+    }
 }
