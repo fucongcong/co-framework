@@ -450,11 +450,19 @@ class Server
     private function getRegistryProcess()
     {   
         $address = parse_url($this->config['registry_address']);
-        if (!$address || !isset($address['scheme'])) {
+        if (empty($address)) return false;
+
+        if (!is_array($address)) {
+            $address = parse_url($address);
+        } else {
+            $address['query'] = $address;
+        }
+
+        if (is_null($address) || !isset($address['scheme'])) {
             return false;
         }
 
-        $scheme = $address['scheme'];
+        $scheme = ucfirst($address['scheme']);
         $registry = "Group\\Process\\{$scheme}RegistryProcess";
         if (!class_exists($registry)) {
             return false;
