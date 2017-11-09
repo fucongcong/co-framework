@@ -33,6 +33,8 @@ class Server
 
     protected $argv;
 
+    protected $debug = false;
+
     protected $setting = [];
 
     public function __construct($config =[], $servName, $argv = [])
@@ -56,6 +58,7 @@ class Server
         $this->serv->on('Task', [$this, 'onTask']);
         $this->serv->on('Finish', [$this, 'onFinish']);
 
+        $this->debug = $config['debug'];
         if (isset($config['process']) && is_array($config['process'])) {
             $this->addProcesses($config['process']);
         }
@@ -141,6 +144,9 @@ class Server
     public function onReceive(swoole_server $serv, $fd, $fromId, $data)
     {
         $data = $this->parse($data);
+        if ($this->debug) {
+            echo "Receive Data: {$data}".PHP_EOL;
+        }
         try {
             $config = $this->config;
 
@@ -452,25 +458,20 @@ class Server
         $address = $this->config['registry_address'];
         if (empty($address)) return false;
 
-        if (!is_array($address)) {
-            $address = parse_url($address);
-        } else {
-            $address['query'] = $address;
-        }
-
-        if (is_null($address) || !isset($address['scheme'])) {
+        if (!isset($address['scheme'])) {
+            echo "registry_address 配置有误".PHP_EOL;
             return false;
         }
 
         $scheme = ucfirst($address['scheme']);
+
         $registry = "Group\\Process\\{$scheme}RegistryProcess";
         if (!class_exists($registry)) {
+            echo "{$scheme}RegistryProcess类不存在,请检查注册中心配置是否正确".PHP_EOL;
             return false;
         }
 
-        if (!isset($address['query'])) $address['query'] = "";
-        
-        return new $registry($address['host'], $address['port'], $address['query']);
+        return new $registry($address);
     }
 
     private function getServices()

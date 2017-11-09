@@ -6,7 +6,7 @@ abstract class RegistryProcess
 {   
     protected $server;
     
-    abstract public function __construct($host, $port, $query);
+    abstract public function __construct($config);
 
     /**
      * 注册服务

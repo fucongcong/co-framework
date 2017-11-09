@@ -19,12 +19,9 @@ class MysqlRegistryProcess extends RegistryProcess
 
     public $dao;
 
-    public function __construct($host, $port, $query)
+    public function __construct($config)
     {
-        $this->config = $query;
-        $this->config['host'] = $host;
-        $this->config['port'] = $port;
-
+        $this->config = $config;
         $this->dao = new Dao();
         $this->dao->setConfig(['default' => $this->config]);
     }

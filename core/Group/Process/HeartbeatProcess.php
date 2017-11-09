@@ -16,25 +16,17 @@ class HeartbeatProcess extends Process
         $address = Config::get('service::registry_address');
         if (empty($address)) return false;
 
-        if (!is_array($address)) {
-            $address = parse_url($address);
-        } else {
-            $address['query'] = $address;
-        }
-
-        if (is_null($address) || !isset($address['scheme'])) {
+        if (!isset($address['scheme'])) {
             return false;
         }
 
         $scheme = ucfirst($address['scheme']);
-        $registry = "Group\\Process\\{$scheme}RegistryProcess";
+        $registry = "Group\\Process\\{$scheme}HeartbeatProcess";
         if (!class_exists($registry)) {
             return false;
         }
 
-        if (!isset($address['query'])) $address['query'] = "";
-        
-        $process = new $registry($address['host'], $address['port'], $address['query']);
+        $process = new $registry($address);
         return $process->register();
     }
 }

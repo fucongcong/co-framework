@@ -19,12 +19,15 @@ class RedisRegistryProcess extends RegistryProcess
 
     public $redis;
 
-    public function __construct($host, $port, $query = "")
+    public function __construct($config)
     {
-        $this->host = $host;
-        $this->port = $port;
+        $this->host = $config['host'];
+        $this->port = $config['port'];
         $this->redis = new Redis;
         $this->redis->connect($this->host, $this->port);
+        if (isset($config['auth'])) {
+            $this->redis->auth($config['auth']);
+        }
     }
 
     public function subscribe()
@@ -38,6 +41,8 @@ class RedisRegistryProcess extends RegistryProcess
             $redis->subscribe($services, function ($redis, $chan, $msg) use ($server) {
                 $redis = new Redis;
                 $redis->connect($this->host, $this->port);
+                if (isset($this->config['auth'])) $redis->auth($this->config['auth']);
+                
                 $addresses = $redis->sMembers('Providers:'.$chan);
                 $addresses = json_encode($addresses);
 

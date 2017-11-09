@@ -53,7 +53,8 @@ class Sync
         if ($registry_address && $registry_address != "") {
             $config[$argv[1]]['registry_address'] = $registry_address;
         }
-        
+        $config[$argv[1]]['debug'] = \Config::get("app::debug");
+
         if (!isset($config[$argv[1]])) return;
 
         $log = isset($config[$argv[1]]['config']['log_file']) ? $config[$argv[1]]['config']['log_file'] : 'runtime/service/default.log';
