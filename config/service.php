@@ -9,7 +9,14 @@ return [
 
     //注册中心，如果不为空的话，在server启动时会起一个子进程订阅依赖的服务列表。
     //'registry_address' => 'redis://127.0.0.1:6379',
-    'registry_address' => 'mysql://127.0.0.1:3306?dbname=Demo&user=root&password=123',
+    'registry_address' => [
+        'scheme' => 'mysql',
+        'host' => '127.0.0.1',
+        'port' => 3306,
+        'user' => 'test',
+        'password' => 'cya#1!ks123',
+        'dbname' => 'Demo'
+    ],
 
     //配置service
     'server' => [

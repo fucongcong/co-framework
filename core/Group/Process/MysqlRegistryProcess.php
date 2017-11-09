@@ -21,9 +21,10 @@ class MysqlRegistryProcess extends RegistryProcess
 
     public function __construct($host, $port, $query)
     {
-        $this->config = $this->convertUrlQuery($query);
+        $this->config = $query;
         $this->config['host'] = $host;
         $this->config['port'] = $port;
+
         $this->dao = new Dao();
         $this->dao->setConfig(['default' => $this->config]);
     }
@@ -148,17 +149,6 @@ class MysqlRegistryProcess extends RegistryProcess
             }
         }
         unset($queryBuilder);
-    }
-
-    private function convertUrlQuery($query)
-    {
-        $queryParts = explode('&', $query);
-        $params = array();
-        foreach ($queryParts as $param) {
-            $item = explode('=', $param);
-            $params[$item[0]] = $item[1];
-        }
-        return $params;
     }
 
     private function deleteProviders($service, $url)

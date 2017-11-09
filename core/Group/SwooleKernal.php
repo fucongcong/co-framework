@@ -184,7 +184,12 @@ class SwooleKernal
         $address = Config::get('service::registry_address');
         if (empty($address)) return false;
 
-        $address = parse_url($address);
+        if (!is_array($address)) {
+            $address = parse_url($address);
+        } else {
+            $address['query'] = $address;
+        }
+
         if (is_null($address) || !isset($address['scheme'])) {
             return false;
         }
