@@ -189,7 +189,7 @@ class SwooleKernal
             return false;
         }
 
-        $scheme = $address['scheme'];
+        $scheme = ucfirst($address['scheme']);
         $registry = "Group\\Process\\{$scheme}RegistryProcess";
         if (!class_exists($registry)) {
             return false;
