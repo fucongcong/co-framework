@@ -449,7 +449,7 @@ class Server
 
     private function getRegistryProcess()
     {   
-        $address = parse_url($this->config['registry_address']);
+        $address = $this->config['registry_address'];
         if (empty($address)) return false;
 
         if (!is_array($address)) {
