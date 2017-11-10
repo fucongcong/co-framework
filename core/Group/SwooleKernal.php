@@ -184,25 +184,20 @@ class SwooleKernal
         $address = Config::get('service::registry_address');
         if (empty($address)) return false;
 
-        if (!is_array($address)) {
-            $address = parse_url($address);
-        } else {
-            $address['query'] = $address;
-        }
-
-        if (is_null($address) || !isset($address['scheme'])) {
+        if (!isset($address['scheme'])) {
+            echo "registry_address 配置有误".PHP_EOL;
             return false;
         }
 
         $scheme = ucfirst($address['scheme']);
+
         $registry = "Group\\Process\\{$scheme}RegistryProcess";
         if (!class_exists($registry)) {
+            echo "{$scheme}RegistryProcess类不存在,请检查注册中心配置是否正确".PHP_EOL;
             return false;
         }
 
-        if (!isset($address['query'])) $address['query'] = "";
-        
-        return new $registry($address['host'], $address['port'], $address['query']);
+        return new $registry($address);
     }
 
     private function unSubscribe()

@@ -17,12 +17,15 @@ class RedisHeartbeatProcess extends Process
 
     public $redis;
 
-    public function __construct($host, $port, $query = "")
+    public function __construct($config)
     {
-        $this->host = $host;
-        $this->port = $port;
+        $this->host = $config['host'];
+        $this->port = $config['port'];
         $this->redis = new Redis;
         $this->redis->connect($this->host, $this->port);
+        if (isset($config['auth'])) {
+            $this->redis->auth($config['auth']);
+        }
     }
 
     public function register()

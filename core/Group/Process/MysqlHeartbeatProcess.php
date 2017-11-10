@@ -19,11 +19,9 @@ class MysqlHeartbeatProcess extends Process
 
     public $dao;
 
-    public function __construct($host, $port, $query)
+    public function __construct($config)
     {
-        $this->config = $this->convertUrlQuery($query);
-        $this->config['host'] = $host;
-        $this->config['port'] = $port;
+        $this->config = $config;
         $this->dao = new Dao();
         $this->dao->setConfig(['default' => $this->config]);
     }
@@ -67,16 +65,5 @@ class MysqlHeartbeatProcess extends Process
     {
         $conn = $this->dao->getDefault();
         $conn->delete("providers", ['service' => $service, 'address' => $url]);
-    }
-
-    private function convertUrlQuery($query)
-    {
-        $queryParts = explode('&', $query);
-        $params = array();
-        foreach ($queryParts as $param) {
-            $item = explode('=', $param);
-            $params[$item[0]] = $item[1];
-        }
-        return $params;
     }
 }
