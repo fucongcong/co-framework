@@ -24,7 +24,7 @@ abstract class RegistryProcess
 
     /**
      * 订阅服务
-     * @return obj swoole_process
+     * @return obj swoole_process|null
      */
     abstract public function subscribe();
 

@@ -8,6 +8,7 @@ use Group\Common\ClassMap;
 use Group\Protocol\ServiceProtocol as Protocol;
 use Group\Protocol\DataPack;
 use Group\Config\Config;
+use Group\Registry;
 use swoole_table;
 use swoole_process;
 use swoole_server;
@@ -455,23 +456,8 @@ class Server
 
     private function getRegistryProcess()
     {   
-        $address = $this->config['registry_address'];
-        if (empty($address)) return false;
-
-        if (!isset($address['scheme'])) {
-            echo "registry_address 配置有误".PHP_EOL;
-            return false;
-        }
-
-        $scheme = ucfirst($address['scheme']);
-
-        $registry = "Group\\Process\\{$scheme}RegistryProcess";
-        if (!class_exists($registry)) {
-            echo "{$scheme}RegistryProcess类不存在,请检查注册中心配置是否正确".PHP_EOL;
-            return false;
-        }
-
-        return new $registry($address);
+        $registry = new Registry;
+        return $registry->getRegistryProcess($this->config['registry_address']);
     }
 
     private function getServices()
