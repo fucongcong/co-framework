@@ -3,6 +3,7 @@
 namespace Group;
 
 use Group\App\App;
+use Group\Registry;
 use Group\Coroutine\Scheduler;
 use Group\Container\Container;
 use Group\Config\Config;
@@ -19,6 +20,8 @@ class SwooleKernal
     protected $app;
 
     protected $pidPath;
+
+    protected $registry;
 
     public function init($check = true)
     {   
@@ -38,6 +41,8 @@ class SwooleKernal
         $this->http->on('WorkerExit', [$this, 'onWorkerExit']);
         $this->http->on('Request', [$this, 'onRequest']);
         $this->http->on('shutdown', [$this, 'onShutdown']);
+
+        $this->registry = new Registry;
 
         $this->addProcesses();
         
@@ -81,7 +86,7 @@ class SwooleKernal
         }
         
         //启动的时候拉取一次服务
-        $this->getServicesList();
+        $this->registry->getServicesList();
 
         echo "HTTP Worker Start...".PHP_EOL;
     }
@@ -125,9 +130,6 @@ class SwooleKernal
         unset($task);
         unset($request);
         unset($response);
-        //$this->fix_gpc_magic($request);
-        //$this->scheduler->newTask($this->app->terminate($request, $response));
-        //$this->scheduler->run();
     }
 
     public function start()
@@ -146,73 +148,15 @@ class SwooleKernal
 
     public function subscribe()
     {   
-        $registry = $this->getRegistryProcess();
-        if (!$registry) return;
-
         $this->http->on('pipeMessage', [$this, 'onPipeRegistryMessage']);
-        $registry->setServer($this->http);
-        $this->http->addProcess($registry->subscribe());
-        unset($registry);
+        if (($process = $this->registry->subscribe($this->http))) {
+            $this->http->addProcess($process);
+        }
     }
 
     public function onPipeRegistryMessage($serv, $src_worker_id, $data)
     {   
-        list($service, $addresses) = explode("::", $data);
-        $addresses = json_decode($addresses, true);
-        if (empty($addresses)) {
-            \StaticCache::set("ServiceList:".$service, null, false);
-            \StaticCache::set("Service:".$service, null, false);
-            return;
-        }
-
-        if ($addresses == \StaticCache::get("ServiceList:".$service, null, false)) {
-            return;
-        }
-
-        shuffle($addresses);
-        \StaticCache::set("ServiceList:".$service, $addresses, false);
-
-        //如果当前服务地址已经失效
-        $current = \StaticCache::get("Service:".$service, false);
-        if ($addresses && !in_array($current, $addresses)) {
-            \StaticCache::set("Service:".$service, $addresses[0], false);
-        }
-    }
-
-    private function getRegistryProcess()
-    {   
-        $address = Config::get('service::registry_address');
-        if (empty($address)) return false;
-
-        if (!isset($address['scheme'])) {
-            echo "registry_address 配置有误".PHP_EOL;
-            return false;
-        }
-
-        $scheme = ucfirst($address['scheme']);
-
-        $registry = "Group\\Process\\{$scheme}RegistryProcess";
-        if (!class_exists($registry)) {
-            echo "{$scheme}RegistryProcess类不存在,请检查注册中心配置是否正确".PHP_EOL;
-            return false;
-        }
-
-        return new $registry($address);
-    }
-
-    private function unSubscribe()
-    {   
-        $registry = $this->getRegistryProcess();
-        if (!$registry) return;
-        $registry->unSubscribe();
-    }
-
-    private function getServicesList()
-    {   
-        $registry = $this->getRegistryProcess();
-        if (!$registry) return;
-        $registry->getList();
-        unset($registry);
+        $this->registry->updateServicesList($data);
     }
 
     private function mkDir($dir)
@@ -267,8 +211,9 @@ class SwooleKernal
     }
 
     private function serverStop()
-    {
-        $this->unSubscribe();
+    {   
+        $registry = new Registry;
+        $registry->unSubscribe();
         $pid = file_get_contents($this->pidPath);
         echo "当前进程".$pid.PHP_EOL;
         echo "正在关闭".PHP_EOL;
@@ -282,44 +227,6 @@ class SwooleKernal
             sleep(1);
         }
         echo "关闭完成".PHP_EOL;
-    }
-
-    public function fix_gpc_magic($request)
-    {
-        static $fixed = false;
-        if (!$fixed && ini_get('magic_quotes_gpc')) {
-
-            array_walk($request->get, '_fix_gpc_magic');
-            array_walk($request->post, '_fix_gpc_magic');
-            array_walk($request->cookie, '_fix_gpc_magic');
-            array_walk($request->files, '_fix_gpc_magic_files');
-
-        }
-        $fixed = true;
-    }
-
-    private static function _fix_gpc_magic(&$item)
-    {
-        if (is_array($item)) {
-            array_walk($item, '_fix_gpc_magic');
-        }
-        else {
-            $item = stripslashes($item);
-        }
-    }
-
-    private static function _fix_gpc_magic_files(&$item, $key)
-    {
-        if ($key != 'tmp_name') {
-
-            if (is_array($item)) {
-              array_walk($item, '_fix_gpc_magic_files');
-            }
-            else {
-              $item = stripslashes($item);
-            }
-
-        }
     }
 }
 
