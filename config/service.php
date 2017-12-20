@@ -8,19 +8,19 @@ return [
     //'node_center' => 'http://groupco.com',
 
     //注册中心，如果不为空的话，在server启动时会起一个子进程订阅依赖的服务列表。
-    // 'registry_address' => [
-    //     'scheme' => 'redis',
-    //     'host' => '127.0.0.1',
-    //     'port' => 6379,
-    //     'auth' => '',
-    // ],
     'registry_address' => [
-        'scheme' => 'zookeeper',
+        'scheme' => 'redis',
         'host' => '127.0.0.1',
-        'port' => 2181,
-        //集群模式
-        'url' => '127.0.0.1:2181,127.0.0.1:2182'
+        'port' => 6379,
+        'auth' => '',
     ],
+    // 'registry_address' => [
+    //     'scheme' => 'zookeeper',
+    //     'host' => '127.0.0.1',
+    //     'port' => 2181,
+    //     //集群模式
+    //     //'url' => '127.0.0.1:2181,127.0.0.1:2182'
+    // ],
     // 'registry_address' => [
     //     'scheme' => 'mysql',
     //     'host' => '127.0.0.1',
