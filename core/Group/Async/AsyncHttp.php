@@ -35,11 +35,15 @@ class AsyncHttp
         $this->domain = $domain;
     }
 
+    /**
+     * 设置超时时间
+     * @param  int $timeout
+     */
     public function setTimeout($timeout)
     {
         $this->timeout = $timeout;
     }
-
+    
     public function setKeepalive($keepalive)
     {
         $this->keepalive = $keepalive;
@@ -60,6 +64,11 @@ class AsyncHttp
         $this->headers = $headers;
     }
 
+    /**
+     * 返回一个异步http客户端
+     * @param  string $path
+     * @return Group\Async\Client\Http
+     */
     public function getClient($path)
     {   
         $client = new Http($this->serv, $this->port, $this->ssl);
@@ -71,6 +80,12 @@ class AsyncHttp
         return $client;
     }
 
+    /**
+     * get请求
+     * @param  string $path
+     * @param  array $data
+     * @return array|false
+     */
     public function get($path, $data = [])
     {   
         yield $this->parseDomain();
@@ -89,6 +104,12 @@ class AsyncHttp
         yield false;
     }
 
+    /**
+     * post请求
+     * @param  string $path
+     * @param  array $data
+     * @return array|false
+     */
     public function post($path, $data = [])
     {   
         yield $this->parseDomain();
@@ -106,6 +127,9 @@ class AsyncHttp
         yield false;
     }
 
+    /**
+     * 解析域名
+     */
     private function parseDomain()
     {   
         preg_match("/^http:\/\/(.*)/", $this->domain, $matchs);
@@ -126,6 +150,11 @@ class AsyncHttp
         throw new \Exception("Error domain, must start with http:// or https://", 1);   
     }
 
+    /**
+     * 解析dns
+     * @param  string $domain
+     * @return [type]
+     */
     private function dnsLookup($domain)
     {
         $domains = explode(":", $domain);

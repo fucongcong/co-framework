@@ -61,7 +61,6 @@ class Console
 
     /**
      * run the console
-     *
      */
     public function run()
     {   
@@ -76,7 +75,6 @@ class Console
 
     /**
      * 检查输入的参数与命令
-     *
      */
     protected function checkArgv()
     {
@@ -95,6 +93,9 @@ class Console
         die;
     }
 
+    /**
+     * 合并自定义终端的配置
+     */
     private function mergeConfig()
     {
         $commands = \Config::get("app::console_commands");

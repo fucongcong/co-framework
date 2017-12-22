@@ -28,6 +28,10 @@ class Http extends Base
         $this->client = new swoole_http_client($ip, $port, $ssl);
     }
 
+    /**
+     * 设置超时时间
+     * @param  int $timeout
+     */
     public function setTimeout($timeout)
     {
         $this->timeout = $timeout;

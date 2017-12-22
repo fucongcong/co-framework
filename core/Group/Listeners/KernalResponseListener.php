@@ -12,6 +12,10 @@ class KernalResponseListener extends \Listener
         return 'onKernalResponse';
     }
 
+    /**
+     * 系统响应事件
+     * @param  \Event
+     */
     public function onKernalResponse(\Event $event)
     {   
         $response = $event->getResponse();

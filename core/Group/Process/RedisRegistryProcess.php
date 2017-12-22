@@ -19,6 +19,10 @@ class RedisRegistryProcess extends RegistryProcess
 
     public $redis;
 
+    /**
+     * 初始化函数
+     * @param array $config
+     */
     public function __construct($config)
     {
         $this->host = $config['host'];
@@ -30,6 +34,10 @@ class RedisRegistryProcess extends RegistryProcess
         }
     }
 
+    /**
+     * 订阅服务
+     * @return obj swoole_process|null
+     */
     public function subscribe()
     {   
         $this->redis->setOption(Redis::OPT_READ_TIMEOUT, -1);
@@ -60,6 +68,9 @@ class RedisRegistryProcess extends RegistryProcess
         return $process;
     }
 
+    /**
+     * 取消订阅
+     */
     public function unSubscribe()
     {
         $services = Config::get("app::services");
@@ -68,7 +79,11 @@ class RedisRegistryProcess extends RegistryProcess
         }
     }
 
-    //先不考虑reids持久化数据问题
+    /**
+     * 注册服务,先不考虑reids持久化数据问题
+     * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
+     * @return boolean
+     */
     public function register($services)
     {   
         //确保所有服务全部注册成功，可以用事务
@@ -82,6 +97,11 @@ class RedisRegistryProcess extends RegistryProcess
         return true;
     }
 
+    /**
+     * 移除服务
+     * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
+     * @return boolean
+     */
     public function unRegister($services)
     {
         foreach ($services as $service => $url) {
@@ -92,12 +112,16 @@ class RedisRegistryProcess extends RegistryProcess
         return true;
     }
 
+    /**
+     * 将依赖的服务列表写入当前内存
+     */
     public function getList()
     {
         $services = Config::get("app::services");
         foreach ($services as $service) {
             $addresses = $this->redis->sMembers('Providers:'.$service);
             StaticCache::set("ServiceList:".$service, $addresses, false);
+
             $address = $this->redis->sRandMember('Providers:'.$service);
             StaticCache::set("Service:".$service, $address, false);
         }

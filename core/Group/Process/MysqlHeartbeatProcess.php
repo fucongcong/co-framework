@@ -26,6 +26,10 @@ class MysqlHeartbeatProcess extends Process
         $this->dao->setConfig(['default' => $this->config]);
     }
 
+    /**
+     * 注册心跳事件
+     * @return obj swoole_process
+     */
     public function register()
     {
         $process = new swoole_process(function($process) {
@@ -51,6 +55,10 @@ class MysqlHeartbeatProcess extends Process
         return $process;
     }
 
+    /**
+     * 获取所有的服务提供者列表
+     * @return array
+     */
     private function getAllServiceProviders()
     {
         $queryBuilder = $this->dao->getDefault()->createQueryBuilder();
@@ -61,6 +69,11 @@ class MysqlHeartbeatProcess extends Process
         return $queryBuilder->execute()->fetchAll();
     }
 
+    /**
+     * 删除指定的服务提供者
+     * @param  [string] $service
+     * @param  [string] $url
+     */
     private function deleteProviders($service, $url)
     {
         $conn = $this->dao->getDefault();

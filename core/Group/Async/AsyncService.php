@@ -28,6 +28,10 @@ class AsyncService
         $this->port = $port;
     }
 
+    /**
+     * 设置超时时间
+     * @param  int $timeout
+     */
     public function setTimeout($timeout)
     {
         $this->timeout = $timeout;
@@ -91,6 +95,11 @@ class AsyncService
         yield false;
     }
 
+    /**
+     * 添加一个请求
+     * @param string $cmd
+     * @param array
+     */
     public function addCall($cmd, $data = [])
     {   
         $callId = $this->callId;
@@ -101,6 +110,10 @@ class AsyncService
         return $callId;
     }
 
+    /**
+     * 并行请求
+     * @return array
+     */
     public function multiCall()
     {   
         $res = (yield $this->call($this->calls['cmd'], $this->calls['data'], $this->timeout));

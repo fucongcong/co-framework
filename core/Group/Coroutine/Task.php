@@ -131,6 +131,12 @@ class Task
         }
     }
 
+    /**
+     * callback
+     * @param  $response
+     * @param  $error
+     * @param  integer $calltime
+     */
     public function callback($response, $error = null, $calltime = 0)
     {
         $this->coroutine = $this->coStack->pop();
@@ -149,6 +155,10 @@ class Task
         return !$this->coroutine->valid();
     }
 
+    /**
+     * 当前的Generator
+     * @return Generator
+     */
     public function getCoroutine()
     {
         return $this->coroutine;

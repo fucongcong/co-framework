@@ -6,6 +6,7 @@ use Group\Contracts\Controller\Controller as ControllerContract;
 use Group\Exceptions\NotFoundException;
 use Config;
 use Cookie;
+use Response;
 use Firebase\JWT\JWT;
 
 class Controller implements ControllerContract
@@ -68,11 +69,17 @@ class Controller implements ControllerContract
         return $this->container;
     }
 
+    /**
+     * 重定向
+     * @param  sting $url
+     * @param  integer
+     * @return Response
+     */
     public function redirect($url, $status = 302)
     {   
-        return new \Response('', $status, ['location' => $url]);
+        return new Response('', $status, ['location' => $url]);
     }
-
+    
     public function setJwt($request, $data, $response)
     {   
         $httpHost = Config::get('jwt::domain');

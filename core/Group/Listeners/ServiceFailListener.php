@@ -13,6 +13,10 @@ class ServiceFailListener extends \Listener
         return 'onServiceFail';
     }
 
+    /**
+     * 服务调用失败事件
+     * @param  \Event
+     */
     public function onServiceFail(\Event $event)
     {
         $info = $event->getProperty();
@@ -22,7 +26,7 @@ class ServiceFailListener extends \Listener
             return;
         }
 
-        //服务降级
+        //故障切换
         $address = StaticCache::get("Service:".$info['service']);
         $addresses =StaticCache::get("ServiceList:".$info['service']);
         $other = array_diff($addresses, [$address]);

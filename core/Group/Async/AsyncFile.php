@@ -33,6 +33,11 @@ class AsyncFile
         yield $res['response'];
     }
 
+    /**
+     * 检测写入权限
+     * @param  $filename
+     * @Exception
+     */
     private static function checWritePermission($filename)
     {   
         $parts = explode('/', $filename);

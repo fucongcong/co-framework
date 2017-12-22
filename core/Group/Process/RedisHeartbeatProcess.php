@@ -28,6 +28,10 @@ class RedisHeartbeatProcess extends Process
         }
     }
 
+    /**
+     * 注册心跳事件
+     * @return obj swoole_process
+     */
     public function register()
     {
         $redis = $this->redis;

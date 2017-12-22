@@ -12,11 +12,19 @@ class AsyncRedis
 
     protected static $usePool = true;
 
+    /**
+     * 设置超时时间
+     * @param  int $timeout
+     */
     public static function setTimeout($timeout)
     {
         self::$timeout = $timeout;
     }
 
+    /**
+     * 是否开启连接池
+     * @param  boolean $status
+     */
     public static function enablePool($status)
     {
         self::$usePool = boolval($status);

@@ -16,6 +16,12 @@ class Service
 
     protected $jobId;
 
+    /**
+     * @param swoole_server
+     * @param int
+     * @param int
+     * @param int
+     */
     public function __construct($serv, $fd, $jobId, $fromId)
     {
         $this->serv = $serv;
@@ -23,8 +29,12 @@ class Service
         $this->jobId = $jobId;
         $this->fromId = $fromId;
     }
-    // protected $serviceName;
 
+    /**
+     * 返回一个数据库对象
+     * @param  string 服务名 [User:User]
+     * @return [object]
+     */
     public function createDao($serviceName)
     {
         list($group, $serviceName) = explode(":", $serviceName);
@@ -36,6 +46,11 @@ class Service
         });
     }
 
+    /**
+     * 向task投递异步任务
+     * @param  string
+     * @param  array
+     */
     public function task($cmd, $data)
     {   
         $callId = $this->jobId."_".$this->callId;
@@ -43,6 +58,10 @@ class Service
         $this->callId++;
     }
 
+    /**
+     * 返回一个task列表
+     * @return array
+     */
     public function finish()
     {   
         return [
@@ -52,6 +71,12 @@ class Service
         ];
     }
 
+    /**
+     * 向客户端发送消息
+     * @param  swoole_server
+     * @param  int
+     * @param  array
+     */
     private function send(swoole_server $serv, $fd, $data){
         $fdinfo = $serv->connection_info($fd);
         if($fdinfo){
@@ -65,6 +90,10 @@ class Service
         }
     }
 
+    /**
+     * @param  string 服务名 [User:User]
+     * @return [object]
+     */
     public function createService($serviceName)
     {
         list($group, $serviceName) = explode(":", $serviceName);

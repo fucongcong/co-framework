@@ -21,6 +21,11 @@ class EofTcp extends Tcp
         parent::__construct($ip, $port);
     }
 
+    /**
+     * 客户端接受到数据后，解析的方法
+     * @param  string $data
+     * @return string
+     */
     public function parse($data)
     {
         $data = explode($this->setting['package_eof'], $data);

@@ -14,19 +14,20 @@ class SyncApp
 {
     /**
      * array instances
-     *
      */
     protected $instances;
 
     private static $instance;
 
+    /**
+     * Group\Sync\Container\Container 容器
+     */
     public $container;
 
     public $router;
 
     /**
      * array aliases
-     *
      */
     protected $aliases = [
         'App'               => 'Group\Sync\SyncApp',
@@ -51,6 +52,10 @@ class SyncApp
         'dao' => 'Group\Sync\Dao\Dao',
     ];
 
+    /**
+     * 服务提供者
+     * @var [$serviceProviders]
+     */
     protected $serviceProviders = [
         'Group\Sync\Cache\RedisServiceProvider',
         'Group\Sync\Cache\FileCacheServiceProvider',
@@ -157,21 +162,6 @@ class SyncApp
     public function doBootstrap($loader) 
     {   
         $this->setServiceProviders();
-
-        // if (Config::get('app::environment') == "prod" && is_file("runtime/cache/bootstrap.class.cache")) {
-        //     require "runtime/cache/bootstrap.class.cache";
-        //     return;
-        // }
-
-        // $bootstrapClass = new BootstrapClass($loader);
-        // foreach ($this->serviceProviders as $serviceProvider) {
-        //     $bootstrapClass->setClass($serviceProvider);
-        // }
-        // foreach ($this->bootstraps as $bootstrap) {
-        //     $bootstrap = isset($this->aliases[$bootstrap]) ? $this->aliases[$bootstrap] : $bootstrap;
-        //     $bootstrapClass->setClass($bootstrap);
-        // }
-        // $bootstrapClass->bootstrap();
     }
 
     /**

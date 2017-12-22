@@ -12,6 +12,10 @@ class KernalInitListener extends \Listener
         return 'onKernalInit';
     }
 
+    /**
+     * 系统初始化事件
+     * @param  \Event
+     */
     public function onKernalInit(\Event $event)
     {
         $listeners = [

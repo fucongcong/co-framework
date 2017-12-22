@@ -38,6 +38,10 @@ abstract class RegistryProcess
      */
     abstract public function getList();
 
+    /**
+     * 设置swoole server
+     * @param  object swoole_http_server $server
+     */
     public function setServer($server)
     {
         $this->server = $server;

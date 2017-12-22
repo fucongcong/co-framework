@@ -36,6 +36,10 @@ class Redis extends Base
         $this->options['timeout'] = $this->timeout;
     }
 
+    /**
+     * 设置超时时间
+     * @param  int $timeout
+     */
     public function setTimeout($timeout)
     {
         $this->timeout = $timeout;

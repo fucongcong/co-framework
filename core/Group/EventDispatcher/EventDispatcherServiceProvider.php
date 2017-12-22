@@ -21,11 +21,6 @@ class EventDispatcherServiceProvider extends ServiceProvider
             $eventDispatcher->addListener(KernalEvent::INIT, new KernalInitListener());
             return $eventDispatcher;
         });
-
-        // $eventDispatcher = new EventDispatcherService();
-        // $eventDispatcher->addListener(KernalEvent::INIT, new KernalInitListener());
-
-        // yield $this->app->setTaskSingleton('eventDispatcher', $eventDispatcher);
     }
 
     public function getName()
