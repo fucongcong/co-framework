@@ -13,12 +13,19 @@ class Client
 
     protected $port;
 
+    /**
+     * @param string $ip,
+     * @param string $port
+     */
     public function __construct($ip, $port)
     {
         $this->ip = $ip;
         $this->port = $port;
     }
 
+    /**
+     * @return Group\Async\Client\Tcp
+     */
     public function getClient()
     {
         $protocol = Config::get("app::protocol");

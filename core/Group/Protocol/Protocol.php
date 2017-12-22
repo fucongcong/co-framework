@@ -7,10 +7,22 @@ use Group\Protocol\DataPack;
 
 class Protocol 
 {   
+    /**
+     * eof结束符
+     * @var string
+     */
     protected static $packageEof = "\r\n";
 
+    /**
+     * 当前的通信协议
+     * @var boolean|string
+     */
     protected static $protocol = false;
 
+    /**
+     * @param  array $data 需要封装的数据
+     * @return string
+     */
     public static function pack($data = [])
     {   
         if (!self::$protocol) {
@@ -30,6 +42,10 @@ class Protocol
         }
     }
 
+    /**
+     * @param  array 封装的数据
+     * @return string
+     */
     public static function unpack($data = [])
     {
         return DataPack::unpack($data);

@@ -3,6 +3,7 @@
 namespace Group;
 
 use Group\Config\Config;
+use StaticCache;
 
 class Registry
 {   
@@ -76,22 +77,22 @@ class Registry
         }
         
         if (empty($addresses)) {
-            \StaticCache::set("ServiceList:".$service, null, false);
-            \StaticCache::set("Service:".$service, null, false);
+            StaticCache::set("ServiceList:".$service, null, false);
+            StaticCache::set("Service:".$service, null, false);
             return;
         }
 
-        if ($addresses == \StaticCache::get("ServiceList:".$service, null, false)) {
+        if ($addresses == StaticCache::get("ServiceList:".$service, null, false)) {
             return;
         }
 
         shuffle($addresses);
-        \StaticCache::set("ServiceList:".$service, $addresses, false);
+        StaticCache::set("ServiceList:".$service, $addresses, false);
 
         //如果当前服务地址已经失效
-        $current = \StaticCache::get("Service:".$service, false);
+        $current = StaticCache::get("Service:".$service, false);
         if ($addresses && !in_array($current, $addresses)) {
-            \StaticCache::set("Service:".$service, $addresses[0], false);
+            StaticCache::set("Service:".$service, $addresses[0], false);
         }
     }
 }

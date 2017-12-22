@@ -32,6 +32,11 @@ class BufServer extends Server
         parent::__construct($config, $servName, $argv);
     }
 
+    /**
+     * 服务端接受到数据后，解析
+     * @param  string $data
+     * @return string
+     */
     public function parse($data)
     {
         return substr($data, 4);

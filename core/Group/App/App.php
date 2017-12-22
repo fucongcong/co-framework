@@ -99,8 +99,9 @@ class App
     }
 
     /**
-     * terminate app
-     *
+     * @param  $request
+     * @param  $response
+     * @return response
      */
     public function terminate($request, $response)
     {   
@@ -168,6 +169,9 @@ class App
         }
     }
 
+    /**
+     * 注册OnWorkStart事件需要执行的服务
+     */
     public function registerOnWorkStartServices()
     {
         foreach ($this->onWorkStartServices as $provider) {
@@ -176,6 +180,10 @@ class App
         }
     }
 
+    /**
+     * 注册OnRequest事件需要执行的服务
+     * @param  object Ccontainer
+     */
     public function registerOnRequestServices($container)
     {
         foreach ($this->onRequestServices as $provider) {
@@ -234,12 +242,20 @@ class App
         self::$instance = $this;
     }
 
+    /**
+     * 移除一个实例
+     * @param  string
+     */
     public function rmInstances($name)
     {
         if(isset($this->instances[$name]))
             unset($this->instances[$name]);
     }
 
+    /**
+     * 关闭数据库连接
+     * @param  $container
+     */
     public function release($container)
     {
         $resources = ['redis', 'mysql'];
@@ -250,6 +266,9 @@ class App
         }
     }
 
+    /**
+     * 释放连接池资源
+     */
     public function releasePool()
     {
         $resources = ['redisPool', 'mysqlPool'];
@@ -260,6 +279,9 @@ class App
         }
     }
 
+    /**
+     * 合并路由配置
+     */
     private function initRoutingConfig()
     {   
         $file = 'route/routing.php';

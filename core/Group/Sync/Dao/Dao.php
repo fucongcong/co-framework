@@ -127,11 +127,17 @@ class Dao
         }
     }
 
+    /**
+     * 释放连接对象
+     */
     public function removeConnection()
     {
         self::$connection = null;
     }
 
+    /**
+     * 获取连接对象
+     */
     protected function getConnection()
     {
         if (self::$connection) {
@@ -199,6 +205,12 @@ class Dao
         return $connection;
     }
 
+    /**
+     * 搜索的参数绑定
+     * @param  Query\QueryBuilder $queryBuilder
+     * @param  array $andWhere
+     * @param  array $condition
+     */
     protected function search(&$queryBuilder, $andWhere, $condition)
     {
         foreach ($andWhere as $key => $value) {
@@ -223,18 +235,11 @@ class Dao
         }
     }
 
-    protected function bindValues($stmt, $conditions, $names)
-    {
-        foreach ($names as $name) {
-            if (!empty($name)) {
-                $stmt->bindValue($name, $conditions[$name]);
-            }
-        }
-
-        $stmt->execute();
-        return $stmt;
-    }
-
+    /**
+     * 判断是否存在in的条件
+     * @param  string $where
+     * @return boolean
+     */
     private function isInCondition($where)
     {
         $matched = preg_match('/\s+(IN)\s+/', $where, $matches);

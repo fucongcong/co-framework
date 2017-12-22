@@ -11,19 +11,50 @@ use Group\Events\KernalEvent;
 
 class Container implements ContainerContract
 {   
+    /**
+     * 实例列表
+     *
+     * @var array 
+     */
     protected $instances;
 
+    /**
+     * 静态实例
+     *
+     * @var $instance 
+     */
     private static $instance;
 
+    /**
+     * 时区
+     *
+     * @var string $timezone 
+     */
     protected $timezone;
 
+    /**
+     * 环境
+     *
+     * @var string $environment dev|prod
+     */
     protected $environment;
 
+    /**
+     * 系统根路径
+     *
+     * @var string $appPath
+     */
     protected $appPath;
 
     protected $locale;
 
+    /**
+     * Response object
+     *
+     * @var swooleResponse
+     */
     protected $swooleResponse;
+
     /**
      * Response object
      *
@@ -38,10 +69,13 @@ class Container implements ContainerContract
      */
     protected $request;
 
-    public $router;
-
     protected $debug = false;
 
+    /**
+     * context 上下文
+     *
+     * @var array
+     */
     protected $context;
 
     public function __construct()
@@ -241,11 +275,17 @@ class Container implements ContainerContract
         return $this->request;
     }
 
+    /**
+     * 执行环境
+     */
     public function runningInConsole()
     {
         return php_sapi_name() == 'cli';
     }
 
+    /**
+     * 设置debug参数
+     */
     private function needDebug()
     {
         if (\Config::get('app::environment') == "dev" && \Config::get('app::debug')) {
@@ -253,16 +293,31 @@ class Container implements ContainerContract
         }
     }
 
+    /**
+     *
+     *@return boolean
+     */
     public function isDebug()
     {
         return $this->debug;
     }
 
+    /**
+     * 设置上下文
+     * @param  string $key
+     * @param  val
+     */
     public function setContext($key, $val)
     {
         $this->context[$key] = $val;
     }
 
+    /**
+     * 获取上下文
+     * @param  string $key
+     * @param  string $default
+     * @return value
+     */
     public function getContext($key, $default = null)
     {
         if (isset($this->context[$key])) {

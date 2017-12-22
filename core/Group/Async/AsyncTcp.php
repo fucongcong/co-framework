@@ -24,6 +24,10 @@ class AsyncTcp
         $this->port = $port;
     }
 
+    /**
+     * 设置超时时间
+     * @param  int $timeout
+     */
     public function setTimeout($timeout)
     {
         $this->timeout = $timeout;

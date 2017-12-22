@@ -17,6 +17,9 @@ abstract class Test extends PHPUnit_Framework_TestCase
             $this->__initialize();
     }
 
+    /**
+     * 单元测试入口
+     */
     public function testCo()
     {   
         $container = new Container();
@@ -24,6 +27,9 @@ abstract class Test extends PHPUnit_Framework_TestCase
         $task->run();
     }
 
+    /**
+     * 执行异步测试
+     */
     protected function scanTasks()
     {
         $ref = new \ReflectionClass($this);
@@ -43,6 +49,9 @@ abstract class Test extends PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * 释放redis连接池资源
+     */
     public function releaseRedis()
     {
         app('redisPool')->close();
@@ -53,6 +62,9 @@ abstract class Test extends PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * 释放mysql连接池资源
+     */
     public function releaseMysql()
     {
         app('mysqlPool')->close();

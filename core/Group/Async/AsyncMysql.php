@@ -12,11 +12,21 @@ class AsyncMysql
 
     protected static $userPool = true;
 
+    /**
+     * 设置超时时间
+     * @param  int $timeout
+     */
     public static function setTimeout($timeout)
     {
         self::$timeout = $timeout;
     }
 
+    /**
+     * 异步执行一条sql
+     * @param  string $sql
+     * @param  boolean 是否使用连接池资源
+     * @return array|boolean
+     */
     public static function query($sql, $userPool = true)
     {   
         if ($userPool && self::$userPool) {
@@ -41,6 +51,10 @@ class AsyncMysql
         yield false;
     }
 
+    /**
+     * 事务begin
+     * @return boolean
+     */
     public static function begin()
     {   
         self::$userPool = false;
@@ -48,6 +62,10 @@ class AsyncMysql
         yield $res;
     }
 
+    /**
+     * 事务commit
+     * @return boolean
+     */
     public static function commit()
     {
         $res = (yield self::query('commit', false));
@@ -55,6 +73,10 @@ class AsyncMysql
         yield $res;
     }
 
+    /**
+     * 事务rollback
+     * @return boolean
+     */
     public static function rollback()
     {
         $res = (yield self::query('rollback', false));

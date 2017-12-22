@@ -37,11 +37,19 @@ class Tcp extends Base
         $this->client->set($this->setting);
     }
 
+    /**
+     * 设置超时时间
+     * @param  int $timeout
+     */
     public function setTimeout($timeout)
     {
         $this->timeout = $timeout;
     }
 
+    /**
+     * 并行计数
+     * @param int
+     */
     public function setCount($count)
     {
         $this->count = $count;
@@ -107,6 +115,9 @@ class Tcp extends Base
         $this->client->connect($this->ip, $this->port, $this->timeout, 1);
     }
 
+    /**
+     * 清除定时器
+     */
     private function clearTimer()
     {
         if ($this->timeId) {

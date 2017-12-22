@@ -6,10 +6,22 @@ use Config;
 
 class DataPack 
 {   
+    /**
+     * 打包方式
+     * @var boolean|string [serialize|json]
+     */
     protected static $pack = false;
 
+    /**
+     * 是否启用gzip
+     * @var boolean
+     */
     protected static $gzip = false;
 
+    /**
+     * @param  array $data 需要打包的数据
+     * @return string
+     */
     public static function pack($data)
     {   
         self::checkConfig();
@@ -35,6 +47,10 @@ class DataPack
         }
     }
 
+    /**
+     * @param  array 解包的数据
+     * @return string
+     */
     public static function unpack($data)
     {
         self::checkConfig();
@@ -52,6 +68,9 @@ class DataPack
         }
     }
 
+    /**
+     * 检查当前的打包方式
+     */
     public static function checkConfig()
     {
         if (!self::$pack) {

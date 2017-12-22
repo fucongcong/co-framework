@@ -15,29 +15,78 @@ use swoole_server;
 use Log;
 
 class Server 
-{
+{   
+    /**
+     * 当前的server
+     * @var object swoole_server
+     */
     protected $serv;
 
+    /**
+     * 当前的serverName
+     * @var string
+     */
     protected $servName;
 
+    /**
+     * 服务器配置
+     * @var array 
+     */
     protected $config;
 
+    /**
+     * task完成之后返回的结果数组
+     * @var array 
+     */
     protected $taskRes;
 
+    /**
+     * task数量
+     * @var int 
+     */
     protected $taskCount;
 
+    /**
+     * 内部task结果，也就是在task内部再次调用task的结果
+     * @var array 
+     */
     protected $insideTaskRes;
 
+    /**
+     * 内部task数量，也就是在task内部再次调用task的数量
+     * @var int 
+     */
     protected $insideTaskCount;
 
+    /**
+     * pid存放地址
+     * @var string 
+     */
     protected $pidPath;
 
+    /**
+     * 用户输入参数
+     * @var array
+     */
     protected $argv;
 
+    /**
+     * debug
+     * @var boolean
+     */
     protected $debug = false;
 
+    /**
+     * swoole server的配置
+     * @var array $setting
+     */
     protected $setting = [];
 
+    /**
+     * @param array $config 配置文件
+     * @param string $servName 需要启动的服务名
+     * @param array $argv 用户参数
+     */
     public function __construct($config =[], $servName, $argv = [])
     {   
         $this->argv = $argv;
@@ -67,6 +116,9 @@ class Server
         $this->serv->start();
     }
 
+    /**
+     * 为主服务添加自定义子进程
+     */
     public function addProcesses($processes)
     {   
         foreach ($processes as $process) {
@@ -78,11 +130,20 @@ class Server
         }
     }
 
+    /**
+     * 服务端接受到数据后，解析
+     * @param  string $data
+     * @return string
+     */
     public function parse($data)
     {
         return $data;
     }
 
+    /**
+     * 服务启动回调事件
+     * @param  swoole_server $serv
+     */
     public function onStart(swoole_server $serv)
     {
         if (PHP_OS !== 'Darwin') {
@@ -97,6 +158,10 @@ class Server
         $this->registerNode();
     }
 
+    /**
+     * 服务关闭回调事件
+     * @param  swoole_server $serv
+     */
     public function onShutdown(swoole_server $serv)
     {
         echo $this->servName." Shutdown...", PHP_EOL;
@@ -104,6 +169,11 @@ class Server
         $this->removeNode();
     }
 
+    /**
+     * worker启动回调事件
+     * @param  swoole_server $serv
+     * @param  【int】 $workerId
+     */
     public function onWorkerStart(swoole_server $serv, $workerId)
     {
         if (function_exists('opcache_reset')) opcache_reset();
@@ -137,11 +207,26 @@ class Server
         }
     }
 
+    /**
+     * worker错误回调事件
+     * @param  swoole_server
+     * @param  int
+     * @param  int
+     * @param  int
+     * @return string 错误信息
+     */
     public function onWorkerError(swoole_server $serv, $workerId, $workerPid, $exitCode)
     {
         echo "[", date('Y-m-d H:i:s'), "] Process Crash : Wid : $workerId error_code : $exitCode", PHP_EOL;
     }
 
+    /**
+     * 接受到数据包回调事件
+     * @param  swoole_server $serv
+     * @param  int $fd
+     * @param  int $fromId
+     * @param  string 数据包
+     */
     public function onReceive(swoole_server $serv, $fd, $fromId, $data)
     {
         $data = $this->parse($data);
@@ -179,6 +264,15 @@ class Server
         }
     }
 
+    /**
+     * 触发Task任务的回调事件
+     * @param  swoole_server
+     * @param  swoole_server $serv
+     * @param  int $fd
+     * @param  int $fromId
+     * @param  string 数据包
+     * @return array
+     */
     public function onTask(swoole_server $serv, $fd, $fromId, $data)
     {
         try {
@@ -217,6 +311,13 @@ class Server
         }
     }
 
+    /**
+     * Task任务完成的回调事件
+     * @param  swoole_server
+     * @param  swoole_server $serv
+     * @param  string $data
+     * @return 
+     */
     public function onFinish(swoole_server $serv, $fd, $data)
     {
         try {
@@ -291,6 +392,12 @@ class Server
         }
     }
 
+    /**
+     * 向客户端发送数据
+     * @param  swoole_server
+     * @param  swoole_server $serv
+     * @param  string $data
+     */
     private function sendData(swoole_server $serv, $fd, $data)
     {   
         if ($data === false) {
@@ -308,6 +415,19 @@ class Server
         }
     }
 
+    /**
+     * invoke the action
+     * @param  string $cmd [User:User]
+     * @param  array $parameters 调用参数
+     * @param  array $server信息 
+     * $server = [
+     *      'serv' => $serv,
+     *      'fd' => $data['fd'],
+     *      'callId' => isset($data['callId']) ? $data['callId'] : $fd."-".$fromId,
+     *      'fromId' => $fromId,
+     *  ]
+     * @return array
+     */
     private function doAction($cmd, array $parameters, $server)
     {   
         list($class, $action) = explode("::", $cmd);
@@ -334,6 +454,11 @@ class Server
         return ['data' => $method->invokeArgs($instanc, $args), 'fd' => $server['fd'], 'callId' => $server['callId']];
     }
 
+    /**
+     * 错误记录
+     * @param  Exception $e
+     * @param  string $type
+     */
     private function record($e, $type = 'error')
     {   
         $levels = array(
@@ -359,6 +484,9 @@ class Server
         Log::$type('[' . $level . '] ' . $e['message'] . '[' . $e['file'] . ' : ' . $e['line'] . ']', []);
     }
 
+    /**
+     * 服务状态控制
+     */
     private function checkStatus()
     {
         if(isset($this->argv[2]) && $this->argv[2] != "start") {
@@ -402,6 +530,10 @@ class Server
         }
     }
 
+    /**
+     * 新建目录
+     * @param  [string] $dir
+     */
     private function mkDir($dir)
     {
         $parts = explode('/', $dir);
@@ -454,12 +586,20 @@ class Server
         unset($process);
     }
 
+    /**
+     * 获取当前的注册中心的进程处理类
+     * @return objetc RegistryProcess
+     */
     private function getRegistryProcess()
     {   
         $registry = new Registry;
         return $registry->getRegistryProcess($this->config['registry_address']);
     }
 
+    /**
+     * 遍历src/Service目录下的服务
+     * @return service列表
+     */
     private function getServices()
     {
         $map = new ClassMap();

@@ -11,6 +11,11 @@ class Server
 {   
     protected $setting;
 
+    /**
+     * @param array $config 配置文件
+     * @param string $servName 需要启动的服务名
+     * @param array $argv 用户参数
+     */
     public function __construct($config =[], $servName, $argv = [])
     {
         $protocol = Config::get("app::protocol");

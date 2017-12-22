@@ -19,6 +19,10 @@ class ZookeeperRegistryProcess extends RegistryProcess
 
     public $port;
 
+    /**
+     * [$dao] ZookeeperApi
+     * @var [Group\Process\ZookeeperApi]
+     */
     public $zk;
 
     public $registry;
@@ -39,6 +43,10 @@ class ZookeeperRegistryProcess extends RegistryProcess
         $this->zk = new ZookeeperApi($this->url);
     }
 
+    /**
+     * 订阅服务
+     * @return obj swoole_process
+     */
     public function subscribe()
     {   
         $services = Config::get("app::services");
@@ -74,6 +82,9 @@ class ZookeeperRegistryProcess extends RegistryProcess
         return $process;
     }
 
+    /**
+     * 取消订阅
+     */
     public function unSubscribe()
     {
         $services = Config::get("app::services");
@@ -89,6 +100,11 @@ class ZookeeperRegistryProcess extends RegistryProcess
         }
     }
 
+    /**
+     * 注册服务,先不考虑reids持久化数据问题
+     * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
+     * @return boolean
+     */
     public function register($services)
     {   
         foreach ($services as $service => $url) {
@@ -101,6 +117,11 @@ class ZookeeperRegistryProcess extends RegistryProcess
         return true;
     }
 
+    /**
+     * 移除服务
+     * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
+     * @return boolean
+     */
     public function unRegister($services)
     {
         foreach ($services as $service => $url) {
@@ -117,6 +138,9 @@ class ZookeeperRegistryProcess extends RegistryProcess
         return true;
     }
 
+    /**
+     * 将依赖的服务列表写入当前内存
+     */
     public function getList()
     {
         $services = Config::get("app::services");

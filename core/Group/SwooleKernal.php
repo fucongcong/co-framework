@@ -4,25 +4,41 @@ namespace Group;
 
 use Group\App\App;
 use Group\Registry;
-use Group\Coroutine\Scheduler;
 use Group\Container\Container;
 use Group\Config\Config;
-use Group\Process\RedisRegistryProcess;
 use swoole_process;
 use swoole_http_server;
 
 class SwooleKernal
 {   
+    /**
+     * http server
+     * @var [swoole_http_server]
+     */
     protected $http;
 
-    protected $scheduler;
-
+    /**
+     * app容器
+     * @var [Group\App\App]
+     */
     protected $app;
 
+    /**
+     * pidPath
+     * @var string
+     */
     protected $pidPath;
 
+    /**
+     * 服务配置中心
+     * @var Group\Registry
+     */
     protected $registry;
 
+    /**
+     * 初始化
+     * @param  boolean $check
+     */
     public function init($check = true)
     {   
         $this->pidPath = __ROOT__."runtime/pid";
@@ -51,6 +67,10 @@ class SwooleKernal
         $this->start();
     }
 
+    /**
+     * 服务启动回调事件
+     * @param  【swoole_http_server】 $serv
+     */
     public function onStart($serv)
     {
         if (PHP_OS !== 'Darwin') {
@@ -64,19 +84,27 @@ class SwooleKernal
         file_put_contents($this->pidPath, $pid);
     }
 
+    /**
+     * 服务关闭回调事件
+     * @param  【swoole_http_server】 $serv
+     */
     public function onShutdown($serv)
     {   
         @unlink($this->pidPath);
         echo "HTTP Server Shutdown...".PHP_EOL;
     }
 
+    /**
+     * worker启动回调事件
+     * @param  【swoole_http_server】 $serv
+     * @param  【int】 $workerId
+     */
     public function onWorkerStart($serv, $workerId)
     {   
         if (function_exists('opcache_reset')) {
             opcache_reset();
         }
 
-        //$this->scheduler = new Scheduler();
         $this->maxTaskId = 0;
         $this->app = new App();
         $this->app->init();
@@ -93,11 +121,21 @@ class SwooleKernal
 
     public function onWorkerStop($serv, $workerId) {}
 
+    /**
+     * worker退出回调事件，释放连接池资源
+     * @param  【swoole_http_server】 $serv
+     * @param  【int】 $workerId
+     */
     public function onWorkerExit($serv, $workerId)
     {
         $this->app->releasePool();
     }
 
+    /**
+     * 请求回调事件
+     * @param  【$request
+     * @param  $response
+     */
     public function onRequest($request, $response)
     {
         $request->get = isset($request->get) ? $request->get : [];
@@ -132,11 +170,17 @@ class SwooleKernal
         unset($response);
     }
 
+    /**
+     * 启动服务
+     */
     public function start()
     {   
         $this->http->start();
     }
 
+    /**
+     * 为主服务添加自定义子进程
+     */
     public function addProcesses()
     {
         $processes = Config::get('app::process') ? : [];
@@ -146,6 +190,9 @@ class SwooleKernal
         }
     }
 
+    /**
+     * 注册服务发现回调事件，起一个子进程订阅服务
+     */
     public function subscribe()
     {   
         $this->http->on('pipeMessage', [$this, 'onPipeRegistryMessage']);
@@ -154,11 +201,21 @@ class SwooleKernal
         }
     }
 
+    /**
+     * 子进程管道通信事件回调
+     * @param 【swoole_http_server】object
+     * @param  [int] worker_id
+     * @param  [array] $data
+     */
     public function onPipeRegistryMessage($serv, $src_worker_id, $data)
     {   
         $this->registry->updateServicesList($data);
     }
 
+    /**
+     * 新建目录
+     * @param  [string] $dir
+     */
     private function mkDir($dir)
     {
         $parts = explode('/', $dir);
@@ -171,6 +228,9 @@ class SwooleKernal
         }
     }
 
+    /**
+     * 服务状态控制
+     */
     private function checkStatus()
     {   
         $args = getopt('s:');
@@ -210,6 +270,9 @@ class SwooleKernal
         }
     }
 
+    /**
+     * 服务关闭
+     */
     private function serverStop()
     {   
         $registry = new Registry;

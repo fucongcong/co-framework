@@ -150,7 +150,6 @@ class Container
 
     /**
      * 设置地区
-     *
      */
     public function setLocale()
     {
@@ -167,11 +166,17 @@ class Container
         return $this->locale;
     }
 
+    /**
+     * 执行环境
+     */
     public function runningInConsole()
     {
         return php_sapi_name() == 'cli';
     }
 
+    /**
+     * 设置debug参数
+     */
     private function needDebug()
     {
         if (\Config::get('app::environment') == "dev" && \Config::get('app::debug')) {
@@ -179,6 +184,10 @@ class Container
         }
     }
 
+    /**
+     *
+     *@return boolean
+     */
     public function isDebug()
     {
         return $this->debug;

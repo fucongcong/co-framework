@@ -11,12 +11,20 @@ use StaticCache;
 
 class MysqlRegistryProcess extends RegistryProcess
 {   
+    /**
+     * [$config 配置文件]
+     * @var [array]
+     */
     public $config;
 
     public $host;
 
     public $port;
 
+    /**
+     * [$dao] 数据库对象
+     * @var [Group\Sync\Dao\Dao]
+     */
     public $dao;
 
     public function __construct($config)
@@ -26,6 +34,11 @@ class MysqlRegistryProcess extends RegistryProcess
         $this->dao->setConfig(['default' => $this->config]);
     }
 
+    /**
+     * 注册服务,先不考虑reids持久化数据问题
+     * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
+     * @return boolean
+     */
     public function register($services)
     {   
         $conn = $this->dao->getDefault();
@@ -148,30 +161,55 @@ class MysqlRegistryProcess extends RegistryProcess
         unset($queryBuilder);
     }
 
+    /**
+     * 删除指定的服务提供者
+     * @param  [string] $service
+     * @param  [string] $url
+     */
     private function deleteProviders($service, $url)
     {
         $conn = $this->dao->getDefault();
         $conn->delete("providers", ['service' => $service, 'address' => $url]);
     }
 
+    /**
+     * 添加的服务提供者
+     * @param  [string] $service
+     * @param  [string] $url
+     */
     private function addProviders($service, $url)
     {
         $conn = $this->dao->getDefault();
         $conn->insert("providers", ['service' => $service, 'address' => $url, 'ctime' => time()]);
     }
 
+    /**
+     * 删除的服务消费者
+     * @param  [string] $service
+     * @param  [string] $url
+     */
     private function deleteConsumers($service, $url)
     {
         $conn = $this->dao->getDefault();
         $conn->delete("consumers", ['service' => $service, 'address' => $url]);
     }
 
+    /**
+     * 添加的服务消费者
+     * @param  [string] $service
+     * @param  [string] $url
+     */
     private function addConsumers($service, $url)
     {
         $conn = $this->dao->getDefault();
         $conn->insert("consumers", ['service' => $service, 'address' => $url, 'ctime' => time()]);
     }
 
+    /**
+     * 获取某个服务下所有提供者
+     * @param  [string] $service
+     * @return array
+     */
     private function getServiceProviders($service)
     {
         $queryBuilder = $this->dao->getDefault()->createQueryBuilder();

@@ -39,7 +39,9 @@ class MysqlPool extends Pool
         $this->createResources();
     }
 
-    //初始化连接数
+    /**
+     * 初始化连接数
+     */
     public function createResources()
     {
         $config = Config::get('database::pdo');

@@ -6,7 +6,11 @@ use AsyncService;
 use Config;
 
 class Service
-{
+{   
+    /**
+     * @param  sting $serviceName 服务名
+     * @return object AsyncService
+     */
     public function createService($serviceName)
     {
         return app()->singleton(strtolower($serviceName), function() use ($serviceName) {

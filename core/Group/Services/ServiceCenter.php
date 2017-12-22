@@ -7,10 +7,22 @@ use Config;
 
 class ServiceCenter
 {   
+    /**
+     * 服务列表
+     * @var array $services
+     */
     protected $services;
 
+    /**
+     * 容器
+     * @var Group\Container\Container $container
+     */
     protected $container;
 
+    /**
+     * @param  string $serviceName 服务名
+     * @return object AsyncService
+     */
     public function createService($serviceName)
     {   
         $ip = $this->services[$serviceName]['ip'];
@@ -22,16 +34,31 @@ class ServiceCenter
         });
     }
 
+    /**
+     * 设置容器
+     * @var Group\Container\Container $container
+     */
     public function setContainer($container)
     {
         $this->container = $container;
     }
 
+    /**
+     * 设置服务信息
+     * @param string $serviceName
+     * @param string $ip
+     * @param string $port
+     */
     public function setService($serviceName, $ip, $port)
     {
         $this->services[$serviceName] = ['ip' => $ip, 'port' => $port];
     }
 
+    /**
+     * 获取服务信息
+     * @param string $serviceName
+     * @return array|false
+     */
     public function getService($serviceName)
     {
         if (isset($this->services[$serviceName])) {
