@@ -361,7 +361,7 @@ class Server
 
     private function checkStatus()
     {
-        if(isset($this->argv[2])) {
+        if(isset($this->argv[2]) && $this->argv[2] != "start") {
 
             if (!file_exists($this->pidPath)) {
                 echo "pid不存在".PHP_EOL;

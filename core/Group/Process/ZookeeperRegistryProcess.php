@@ -8,6 +8,8 @@ use Group\Config\Config;
 use Group\Registry;
 use swoole_process;
 use StaticCache;
+use Log;
+use Exception;
 
 class ZookeeperRegistryProcess extends RegistryProcess
 {
@@ -57,7 +59,7 @@ class ZookeeperRegistryProcess extends RegistryProcess
 
                 $ret = $zk->watch("/GroupCo/User/Providers", function() use ($server, $service, $zk) {
                     $addresses = $zk->getChildren("/GroupCo/{$service}/Providers");
-                    $addresses = json_encode($addresses);echo $addresses."\n";
+                    $addresses = json_encode($addresses);
                     for ($i=0; $i < $server->setting['worker_num']; $i++) {
                         $server->sendMessage($service."::".$addresses, $i);
                     }
@@ -76,7 +78,11 @@ class ZookeeperRegistryProcess extends RegistryProcess
     {
         $services = Config::get("app::services");
         foreach ($services as $service) {
-            $this->zk->deleteNode("/GroupCo/{$service}/Consumers/".Config::get("app::ip").":".Config::get("app::port"));
+            try {
+                $this->zk->deleteNode("/GroupCo/{$service}/Consumers/".Config::get("app::ip").":".Config::get("app::port"));
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
 
             $addresses = $this->zk->getChildren("/GroupCo/{$service}/Consumers");
             $this->zk->set("/GroupCo/{$service}/Consumers", json_encode($addresses));
@@ -98,7 +104,11 @@ class ZookeeperRegistryProcess extends RegistryProcess
     public function unRegister($services)
     {
         foreach ($services as $service => $url) {
-            $this->zk->deleteNode("/GroupCo/{$service}/Providers/".$url);
+            try {
+                $this->zk->deleteNode("/GroupCo/{$service}/Providers/".$url);
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+            }
 
             $addresses = $this->zk->getChildren("/GroupCo/{$service}/Providers");
             $this->zk->set("/GroupCo/{$service}/Providers", json_encode($addresses));

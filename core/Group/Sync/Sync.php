@@ -20,7 +20,7 @@ class Sync
      \ - -- -  \ /       \ \             \ - - - - -/       \ - - -  - - /     \ \
 \033[0m
 \033[31m 使用帮助: \033[0m
-\033[33m Usage: app/service [需要执行的server名称] \033[0m
+\033[33m Usage: app/service [server名称] [start|stop|reload] \033[0m
 ";
 
     public function __construct($argv)
