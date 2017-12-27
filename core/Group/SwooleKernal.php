@@ -143,6 +143,7 @@ class SwooleKernal
         $request->cookie = isset($request->cookie) ? $request->cookie : [];
         $request->files = isset($request->files) ? $request->files : [];
         $request->server = isset($request->server) ? $request->server : [];
+        $request->header = isset($request->header) ? $request->header : [];
         $request->server['REQUEST_URI'] = isset($request->server['request_uri']) ? $request->server['request_uri'] : '';
         preg_match_all("/^(.+\.php)(\/.*)$/", $request->server['REQUEST_URI'], $matches);
 
@@ -150,6 +151,11 @@ class SwooleKernal
         foreach ($request->server as $key => $value) {
             $request->server[strtoupper($key)] = $value;
         }
+
+        foreach ($request->header as $key => $value) {
+            $request->header["HTTP_".strtoupper($key)] = $value;
+        }
+        $request->server = array_merge($request->server, $request->header);
 
         if ($request->server['request_uri'] == '/favicon.ico' || substr($request->server['REQUEST_URI'], 0, 7) == "/assets") {
             $response->end();

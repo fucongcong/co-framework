@@ -35,7 +35,7 @@ class MysqlRegistryProcess extends RegistryProcess
     }
 
     /**
-     * 注册服务,先不考虑reids持久化数据问题
+     * 注册服务
      * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
      * @return boolean
      */
