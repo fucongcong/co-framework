@@ -130,7 +130,7 @@ class AsyncHttp
     /**
      * 解析域名
      */
-    private function parseDomain()
+    public function parseDomain()
     {   
         preg_match("/^http:\/\/(.*)/", $this->domain, $matchs);
         if ($matchs) {
