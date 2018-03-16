@@ -73,6 +73,8 @@ class RedisPool extends Pool
             if (!isset($this->resources[spl_object_hash($resource)])) {
                 $resource = false;
                 continue;
+            } else {
+                break;
             }
         }
 

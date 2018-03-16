@@ -78,6 +78,16 @@ abstract class Pool
         }
     }
 
+    public function getFreePoolCount()
+    {
+        return $this->poolQueue->count();
+    }
+
+    public function getTaskQueueCount()
+    {
+        return $this->taskQueue->count();
+    }
+
     /**
      * 释放资源入队列
      */ 
