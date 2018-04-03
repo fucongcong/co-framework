@@ -85,6 +85,7 @@ class RedisPool extends Pool
         $task = $this->taskQueue->dequeue();
         $method = $task['methd'];
         $parameters = $task['parameters'];
+        $parameters[0] = $this->config['default']['prefix'].$parameters[0];
         $callback = $task['callback'];
         array_push($parameters, function(swoole_redis $client, $res) use ($callback) {
             if ($res === false) {
