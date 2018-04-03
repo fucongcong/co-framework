@@ -60,7 +60,15 @@ class RedisCacheService
      */
     public function mGet(array $cacheNames)
     {
-        return $this->redis->mGet($cacheNames);
+        $data = $this->redis->mGet($cacheNames);
+        foreach ($data as $key => &$value) {
+            if ($value) $value = gzinflate($value);
+            $jsonData =json_decode($value, true);
+            $value = ($jsonData === NULL) ? $value : $jsonData;
+            unset($jsonData);
+        }
+
+        return $data;
     }
 
     /**
@@ -72,7 +80,11 @@ class RedisCacheService
      */
     public function hGet($hashKey, $key)
     {
-        return $this->redis->hGet($hashKey, $key);
+        $value = $this->redis->hGet($hashKey, $key);
+        if ($value) $value = gzinflate($value);
+
+        $jsonData  = json_decode($value, true);
+        return ($jsonData === NULL) ? $value : $jsonData;
     }
 
     /**
@@ -81,11 +93,18 @@ class RedisCacheService
      * @param  hashKey
      * @param  key
      * @param  data
-     * @param  expireTime(int)
+     * @param  expireTime (int)
      * @return int
      */
     public function hSet($hashKey, $key, $data, $expireTime = 3600)
-    {
+    {   
+        $data = (is_object($data) || is_array($data)) ? json_encode($data) : $data;
+        if (strlen($data) > 4096){
+            $data = gzdeflate($data, 6);
+        }else{
+            $data = gzdeflate($data, 0);
+        }
+
         $status = $this->redis->hSet($hashKey, $key, $data);
 
         $this->redis->expire($hashKey, $expireTime);
