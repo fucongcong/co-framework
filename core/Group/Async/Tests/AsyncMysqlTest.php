@@ -35,7 +35,7 @@ class AsyncMysqlTest extends Test
             yield AsyncMysql::rollback();
         }
 
-        yield $this->releaseMysql();
+        //yield $this->releaseMysql();
     }
 
     public function doTrans()
