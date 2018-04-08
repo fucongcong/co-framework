@@ -117,6 +117,7 @@ class MysqlPool extends Pool
             if ($conn->connected) {
                 $conn->close();
             }
+            $this->remove($conn);
         }
     }
 }

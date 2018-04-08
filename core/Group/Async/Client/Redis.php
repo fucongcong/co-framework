@@ -33,6 +33,7 @@ class Redis extends Base
         if (isset($config['default']['auth'])) {
             $this->options['password'] = $config['default']['auth'];
         }
+        $this->options['prefix'] = $config['default']['prefix'];
         $this->options['timeout'] = $this->timeout;
     }
 
@@ -80,6 +81,7 @@ class Redis extends Base
     {
         $method = $this->method;
         $parameters = $this->parameters;
+        $parameters[0] = $this->options['prefix'].$parameters[0];
         array_push($parameters, function(swoole_redis $client, $res) use ($callback) {
             $this->calltime = microtime(true) - $this->calltime;
             if ($res === false) {
