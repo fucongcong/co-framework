@@ -42,6 +42,10 @@ class RedisCacheService
      */
     public function set($cacheName, $data, $expireTime = 3600)
     {   
+        if ($data === null) {
+            return $this->redis->del($cacheName);
+        }
+
         $data  =  (is_object($data) || is_array($data)) ? json_encode($data) : $data;
         if (strlen($data) > 4096){
             $data = gzdeflate($data, 6);
