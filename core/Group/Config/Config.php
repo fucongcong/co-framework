@@ -111,6 +111,10 @@ class Config implements ConfigContract
             } else {
                 $app = require_once(__ROOT__."config/".$key.".php");
             }
+
+            if ($app == "app") {
+                $app['environment'] = $this->env;
+            }
             
             $this->config = array_merge($this->config, [$key => $app]);
         }
