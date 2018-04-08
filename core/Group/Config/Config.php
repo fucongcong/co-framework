@@ -116,6 +116,10 @@ class Config implements ConfigContract
                 $app['environment'] = $this->env;
             }
             
+            if ($key == "app") {
+                $app['environment'] = $this->env;
+            }
+
             $this->config = array_merge($this->config, [$key => $app]);
         }
 
