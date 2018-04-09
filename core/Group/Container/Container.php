@@ -105,6 +105,16 @@ class Container implements ContainerContract
     }
 
     /**
+     * 移除一个实例
+     * @param  string
+     */
+    public function rmInstances($name)
+    {
+        if(isset($this->instances[$name]))
+            unset($this->instances[$name]);
+    }
+
+    /**
      * build a moudle class
      *
      * @param  class

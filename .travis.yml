@@ -26,7 +26,6 @@ before_script:
     - cd ..
     - phpenv config-add config.ini
     - php --ri swoole
-    - app/console  sql:migrate
     - app/service user
 script:
     - phpunit --bootstrap app/test.php core/Group
