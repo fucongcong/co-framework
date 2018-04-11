@@ -108,7 +108,7 @@ class Config implements ConfigContract
         if (!isset($config[$key])) {
             if (file_exists(__ROOT__."config/".$this->env."/".$key.".php")) {
                 $app = require_once(__ROOT__."config/".$this->env."/".$key.".php");
-            } else {
+            } elseif ($key != "app")  {
                 $app = require_once(__ROOT__."config/".$key.".php");
             }
 
