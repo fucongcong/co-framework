@@ -44,7 +44,12 @@ class AsyncService
 
     public function call($cmd, $data = [], $timeout = false, $monitor = true)
     {   
+        $container = (yield getContainer());
         if (!$this->serv || !$this->port) {
+            yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_FAIL, 
+                new Event(['cmd' => $cmd, 'service' => $this->service, 'ip' => $this->serv,
+                 'port' => $this->port, 'container' => $container
+            ]));
             yield false;
         }
         
@@ -69,7 +74,6 @@ class AsyncService
         $client->setData($data);
         $res = (yield $client);
 
-        $container = (yield getContainer());
         if ($res && $res['response']) {
             if ($monitor) {
                 //抛出一个事件出去，方便做上报
