@@ -9,6 +9,8 @@ class Config implements ConfigContract
 {
     private static $instance;
 
+    private $env = null;
+
     protected $config = [];
 
     /**
@@ -98,8 +100,22 @@ class Config implements ConfigContract
     {
         $config = $this->config;
 
+        if (!$this->env) {
+            $app = require_once(__ROOT__."config/app.php");
+            $this->env = $app['environment'];
+        }
+
         if (!isset($config[$key])) {
-            $app = require_once(__ROOT__."config/".$key.".php");
+            if (file_exists(__ROOT__."config/".$this->env."/".$key.".php")) {
+                $app = require_once(__ROOT__."config/".$this->env."/".$key.".php");
+            } elseif ($key != "app")  {
+                $app = require_once(__ROOT__."config/".$key.".php");
+            }
+
+            if ($key == "app") {
+                $app['environment'] = $this->env;
+            }
+
             $this->config = array_merge($this->config, [$key => $app]);
         }
 

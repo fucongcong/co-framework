@@ -107,6 +107,7 @@ class RedisPool extends Pool
         foreach ($this->resources as $conn)
         {
             $conn->close();
+            $this->remove($conn);
         }
     }
 }

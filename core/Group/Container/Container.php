@@ -71,6 +71,7 @@ class Container implements ContainerContract
 
     protected $debug = false;
 
+    protected $callables = [];
     /**
      * context 上下文
      *
@@ -99,9 +100,24 @@ class Container implements ContainerContract
     {
         if (!isset($this->instances[$name]) && $callable) {
             $this->instances[$name] = call_user_func($callable);
+            $this->callables[$name] = $callable;
+        }
+
+        if (!isset($this->instances[$name]) && !$callable && isset($this->callables[$name])) {
+            $this->instances[$name] = call_user_func($this->callables[$name]);
         }
 
         return isset($this->instances[$name]) ? $this->instances[$name] : null;
+    }
+
+    /**
+     * 移除一个实例
+     * @param  string
+     */
+    public function rmInstances($name)
+    {
+        if(isset($this->instances[$name]))
+            unset($this->instances[$name]);
     }
 
     /**

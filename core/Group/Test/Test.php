@@ -46,6 +46,9 @@ abstract class Test extends PHPUnit_Framework_TestCase
             }
 
             yield $this->$methodName();
+
+            yield $this->releaseRedis();
+            yield $this->releaseMysql();
         }
     }
 
@@ -58,7 +61,7 @@ abstract class Test extends PHPUnit_Framework_TestCase
         $container = (yield getContainer());
         if (!is_null($container->singleton('redis'))) {
             $container->singleton('redis')->close();
-            exit;
+            $container->rmInstances('redis');
         }
     }
 
@@ -71,6 +74,7 @@ abstract class Test extends PHPUnit_Framework_TestCase
         $container = (yield getContainer());
         if (!is_null($container->singleton('mysql'))) {
             $container->singleton('mysql')->close();
+            $container->rmInstances('mysql');
         }
     }
 }
