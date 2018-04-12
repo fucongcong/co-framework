@@ -21,5 +21,10 @@ return [
             'listener'  => 'src\Web\Listeners\KernalRequestListener',
             'priority'  => 10,
         ],
+        // [
+        //     'eventName' => 'kernal.service_fail',
+        //     'listener'  => 'src\Web\Listeners\ServiceFailListener',
+        //     'priority'  => 10,
+        // ],
     ]
 ];
