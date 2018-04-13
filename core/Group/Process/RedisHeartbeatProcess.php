@@ -26,6 +26,7 @@ class RedisHeartbeatProcess extends Process
         if (isset($config['auth'])) {
             $this->redis->auth($config['auth']);
         }
+        $this->redis->setOption(Redis::OPT_PREFIX, isset($config['prefix']) ? $config['prefix'] : '');
     }
 
     /**
