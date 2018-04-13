@@ -32,6 +32,7 @@ class RedisRegistryProcess extends RegistryProcess
         if (isset($config['auth'])) {
             $this->redis->auth($config['auth']);
         }
+        $this->redis->setOption(Redis::OPT_PREFIX, isset($config['prefix']) ? $config['prefix'] : '');
     }
 
     /**
