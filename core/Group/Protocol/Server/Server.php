@@ -492,7 +492,7 @@ class Server
         if(isset($this->argv[2]) && $this->argv[2] != "start") {
 
             if (!file_exists($this->pidPath)) {
-                echo "pid不存在".PHP_EOL;
+                echo "pid不存在, 服务尚未启动".PHP_EOL;
                 exit;
             }
 
@@ -522,6 +522,10 @@ class Server
                     echo "关闭完成".PHP_EOL;
                     $this->removeNode();
                     @unlink($this->pidPath);
+                    break;
+                case 'restart':
+                    passthru("app/service ".$this->servName." stop && app/service ".$this->servName);
+                    echo "启动完成".PHP_EOL;
                     break;
                 default:
                     break;
