@@ -54,13 +54,12 @@ class Sync
           return $this->console($config, $argv[1]);
         }
 
+        if (!isset($config[$argv[1]])) return;
         $registry_address = \Config::get("service::registry_address");
         if ($registry_address && $registry_address != "") {
             $config[$argv[1]]['registry_address'] = $registry_address;
         }
         $config[$argv[1]]['debug'] = \Config::get("app::debug");
-
-        if (!isset($config[$argv[1]])) return;
 
         $log = isset($config[$argv[1]]['config']['log_file']) ? $config[$argv[1]]['config']['log_file'] : 'runtime/service/default.log';
         $log = explode("/", $log);
