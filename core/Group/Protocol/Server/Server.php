@@ -175,7 +175,8 @@ class Server
      * @param  【int】 $workerId
      */
     public function onWorkerStart(swoole_server $serv, $workerId)
-    {
+    {   
+        if (function_exists('apc_clear_cache')) apc_clear_cache();
         if (function_exists('opcache_reset')) opcache_reset();
         $loader = require __ROOT__.'/vendor/autoload.php';
         $app = new \Group\Sync\SyncApp();
