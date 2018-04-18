@@ -55,6 +55,7 @@ class Sync
         }
 
         if (!isset($config[$argv[1]])) return;
+
         $registry_address = \Config::get("service::registry_address");
         if ($registry_address && $registry_address != "") {
             $config[$argv[1]]['registry_address'] = $registry_address;
@@ -76,11 +77,13 @@ class Sync
             case 'reload':
             case 'stop':
                 foreach ($config as $serverName => $val) {
+                    echo "{$status} {$serverName} service...".PHP_EOL;
                     passthru("app/service {$serverName} {$status}");
                 }
                 break;
             case 'start':
                 foreach ($config as $serverName => $val) {
+                    echo "{$status} {$serverName} service...".PHP_EOL;
                     passthru("app/service {$serverName}");
                 }
                 break;
