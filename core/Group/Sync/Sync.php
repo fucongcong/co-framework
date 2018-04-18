@@ -77,11 +77,13 @@ class Sync
             case 'reload':
             case 'stop':
                 foreach ($config as $serverName => $val) {
+                    echo "{$status} {$serverName} service...".PHP_EOL;
                     passthru("app/service {$serverName} {$status}");
                 }
                 break;
             case 'start':
                 foreach ($config as $serverName => $val) {
+                    echo "{$status} {$serverName} service...".PHP_EOL;
                     passthru("app/service {$serverName}");
                 }
                 break;
