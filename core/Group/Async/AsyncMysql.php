@@ -28,7 +28,7 @@ class AsyncMysql
      * @return array|boolean
      */
     public static function query($sql, $userPool = true)
-    {   
+    {
         if ($userPool && self::$userPool) {
             $pool = app('mysqlPool');
             $mysql = new MysqlProxy($pool);
@@ -56,7 +56,7 @@ class AsyncMysql
      * @return boolean
      */
     public static function begin()
-    {   
+    {
         self::$userPool = false;
         $res = (yield self::query('begin', false));
         yield $res;

@@ -38,7 +38,7 @@ return [
             'serv' => '0.0.0.0',
             'port' => 9518,
             'config' => [
-                //'daemonize' => true,        
+                'daemonize' => true,        
                 'worker_num' => 5,
                 'max_request' => 50000,
                 'task_worker_num' => 10,
