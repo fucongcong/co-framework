@@ -188,7 +188,7 @@ class Server
         } else {
             define('__ROOT__', realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR);
         }
-        
+        echo __ROOT__;
         $loader = require __ROOT__.'/vendor/autoload.php';
         $app = new \Group\Sync\SyncApp();
         $app->initSelf();
