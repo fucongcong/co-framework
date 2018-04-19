@@ -25,9 +25,14 @@ Class ClassMap
     }
 
     private  function searchClass($fileDir, $data=[])
-    {
-        if (is_dir(__ROOT__.$fileDir)) {
-            $dir = opendir(__ROOT__.$fileDir);
+    {   
+        if (defined('__ROOT__')) {
+            $webroot = __ROOT__;
+        } else {
+            $webroot = __FILEROOT__;
+        }
+        if (is_dir($webroot.$fileDir)) {
+            $dir = opendir($webroot.$fileDir);
 
             while (($file = readdir($dir)) !== false)
             {

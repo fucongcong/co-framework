@@ -99,17 +99,22 @@ class Config implements ConfigContract
     private function checkConfig($key)
     {
         $config = $this->config;
+        if (defined('__ROOT__')) {
+            $dir = __ROOT__;
+        } else {
+            $dir = __FILEROOT__;
+        }
 
         if (!$this->env) {
-            $app = require_once(__ROOT__."config/app.php");
+            $app = require_once($dir."config/app.php");
             $this->env = $app['environment'];
         }
 
         if (!isset($config[$key])) {
-            if (file_exists(__ROOT__."config/".$this->env."/".$key.".php")) {
-                $app = require_once(__ROOT__."config/".$this->env."/".$key.".php");
+            if (file_exists($dir."config/".$this->env."/".$key.".php")) {
+                $app = require_once($dir."config/".$this->env."/".$key.".php");
             } elseif ($key != "app")  {
-                $app = require_once(__ROOT__."config/".$key.".php");
+                $app = require_once($dir."config/".$key.".php");
             }
 
             if ($key == "app") {

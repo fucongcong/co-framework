@@ -93,7 +93,7 @@ class Server
         $config['config'] = array_merge($this->setting, $config['config']);
         $this->config = $config;
         $this->servName = $servName;
-        $this->pidPath = isset($this->config['config']['pid_path']) ? $this->config['config']['pid_path'] : __ROOT__."runtime";
+        $this->pidPath = isset($this->config['config']['pid_path']) ? $this->config['config']['pid_path'] : __FILEROOT__."runtime";
         $this->pidPath .= "/service/{$servName}/pid";
 
         $this->checkStatus();

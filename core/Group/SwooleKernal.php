@@ -42,7 +42,7 @@ class SwooleKernal
     public function init($check = true)
     {   
         $setting = Config::get('app::setting');
-        $this->pidPath = isset($setting['pid_path']) ? $setting['pid_path'] : __ROOT__."runtime";
+        $this->pidPath = isset($setting['pid_path']) ? $setting['pid_path'] : __FILEROOT__."runtime";
         $this->pidPath .= "/pid";
         if ($check) $this->checkStatus();
 
