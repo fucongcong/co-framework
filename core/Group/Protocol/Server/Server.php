@@ -93,7 +93,9 @@ class Server
         $config['config'] = array_merge($this->setting, $config['config']);
         $this->config = $config;
         $this->servName = $servName;
-        $this->pidPath = __ROOT__."runtime/service/{$servName}/pid";
+        $this->pidPath = isset($this->config['pid_path']) ? $this->config['pid_path'] : __ROOT__."runtime";
+        $this->pidPath .= "/service/{$servName}/pid";
+
         $this->checkStatus();
 
         $this->serv = new swoole_server($config['serv'], $config['port']);
