@@ -2,7 +2,7 @@
 
 define('ASYNC', true);
 if (file_exists("runtime/webroot")) {
-    $webroot = file_get_contents("runtime/webroot");
+    $webroot = trim(file_get_contents("runtime/webroot"));
     define('__FILEROOT__', $webroot . DIRECTORY_SEPARATOR);
 } else {
     define('__FILEROOT__', realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR );

@@ -108,7 +108,7 @@ class SwooleKernal
 
         //发布时候路径问题
         if (file_exists("runtime/webroot")) {
-            $webroot = file_get_contents("runtime/webroot");
+            $webroot = trim(file_get_contents("runtime/webroot"));
             define('__ROOT__', $webroot . DIRECTORY_SEPARATOR);
         } else {
             define('__ROOT__', realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR);
@@ -249,7 +249,7 @@ class SwooleKernal
     private function checkStatus()
     {
         $args = getopt('s:');
-        
+
         if(isset($args['s'])) {
 
             if (!file_exists($this->pidPath)) {
