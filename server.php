@@ -1,8 +1,8 @@
 <?php
 
 define('ASYNC', true);
-if (file_exists("/var/log/api/webroot")) {
-    $webroot = trim(file_get_contents("/var/log/api/webroot"));
+if (file_exists("runtime/webroot")) {
+    $webroot = trim(file_get_contents("runtime/webroot"));
     define('__FILEROOT__', $webroot . DIRECTORY_SEPARATOR);
 } else {
     define('__FILEROOT__', realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR );
