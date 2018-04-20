@@ -74,15 +74,24 @@ class AsyncService
         $client->setData($data);
         $res = (yield $client);
 
-        if ($res && $res['response']) {
-            if ($monitor) {
+        //监控
+        if ($monitor) {
+            if ($res) {
                 //抛出一个事件出去，方便做上报
                 yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_CALL,
                     new Event(['cmd' => $cmd, 'calltime' => $res['calltime'], 'ip' => $this->serv,
-                     'port' => $this->port, 'error' => $res['error']
+                     'port' => $this->port, 'error' => $res['error'], 'status' => 1
+                ]));
+            } else {
+                //抛出一个事件出去，方便做上报
+                yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_CALL,
+                    new Event(['cmd' => $cmd, 'calltime' => 0, 'ip' => $this->serv,
+                     'port' => $this->port, 'error' => 'connect timeout!', 'status' => 0
                 ]));
             }
+        }
 
+        if ($res && $res['response']) {
             list($cmd, $data) = Protocol::unpack($res['response']);
             $res['response'] = $data;
             yield $res['response'];
