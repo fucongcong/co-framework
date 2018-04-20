@@ -111,7 +111,7 @@ class SwooleKernal
             $webroot = trim(file_get_contents("/var/log/api/webroot"));
             define('__ROOT__', $webroot . DIRECTORY_SEPARATOR);
         } else {
-            define('__ROOT__', realpath(dirname(__FILE__)) . DIRECTORY_SEPARATOR);
+            define('__ROOT__', __FILEROOT__);
         }
 
         $this->maxTaskId = 0;
