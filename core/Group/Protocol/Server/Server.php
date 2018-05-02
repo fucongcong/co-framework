@@ -175,27 +175,26 @@ class Server
      * @param  【int】 $workerId
      */
     public function onWorkerStart(swoole_server $serv, $workerId)
-    {
-        if (function_exists('opcache_reset')) opcache_reset();
-        $loader = require __ROOT__.'/vendor/autoload.php';
-        $app = new \Group\Sync\SyncApp();
-        $app->initSelf();
-        $app->registerServices();
-        $app->singleton('container')->setAppPath(__ROOT__);
+    {   
+        try {
+            if (function_exists('opcache_reset')) opcache_reset();
+            $loader = require __ROOT__.'/vendor/autoload.php';
+            $app = new \Group\Sync\SyncApp();
+            $app->initSelf();
+            $app->registerServices();
+            $app->singleton('container')->setAppPath(__ROOT__);
 
-        //设置不同进程名字,方便grep管理
-        if (PHP_OS !== 'Darwin') {
-            if ($workerId >= $serv->setting['worker_num']) {
-                swoole_set_process_name("php {$this->servName}: task");
-            } else {
-                swoole_set_process_name("php {$this->servName}: worker");
+            //设置不同进程名字,方便grep管理
+            if (PHP_OS !== 'Darwin') {
+                if ($workerId >= $serv->setting['worker_num']) {
+                    swoole_set_process_name("php {$this->servName}: task");
+                } else {
+                    swoole_set_process_name("php {$this->servName}: worker");
+                }
             }
+        } catch (\Exception $e) {
+            echo $e->getMessage().PHP_EOL;
         }
-        // 判定是否为Task Worker进程
-        // if ($workerId >= $serv->setting['worker_num']) {
-        // } else {
-        //     //$this->createTaskTable();
-        // }
     }
 
     public function onWorkerStop(swoole_server $serv, $workerId)
