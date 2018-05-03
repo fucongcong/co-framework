@@ -22,7 +22,7 @@ class RedisServiceProvider extends ServiceProvider
             if (Config::get("database::cache") != 'redis') return;
 
             $config = Config::get("database::redis");
-            if ($config['cluster'] == true) return;
+            if (isset($config['cluster']) && $config['cluster'] == true) return;
             $redis = new Redis;
             //是否需要持久化连接
             if ($config['default']['connect'] == 'persistence') {
@@ -45,7 +45,7 @@ class RedisServiceProvider extends ServiceProvider
             if (Config::get("database::cache") != 'redis') return;
 
             $config = Config::get("database::redis");
-            if ($config['cluster'] != true) return;
+            if (!isset($config['cluster']) || $config['cluster'] != true) return;
 
             $hosts = [];
             foreach ($config['clusters'] as $node => $conf) {
