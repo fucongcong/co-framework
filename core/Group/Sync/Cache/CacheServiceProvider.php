@@ -21,7 +21,7 @@ class CacheServiceProvider extends ServiceProvider
         if ($this->cache == 'redisCache') {
             $this->app->singleton($this->cache, function () {
                 $config = Config::get("database::redis");
-                if ($config['cluster']) {
+                if (isset($config['cluster']) && $config['cluster']) {
                     return new RedisCacheService($this->app->singleton('redisCluster'));
                 } else {
                     return new RedisCacheService($this->app->singleton('redis'));
