@@ -178,36 +178,35 @@ class Server
      */
     public function onWorkerStart(swoole_server $serv, $workerId)
     {   
-        if (function_exists('apc_clear_cache')) apc_clear_cache();
-        if (function_exists('opcache_reset')) opcache_reset();
+        try {
+            if (function_exists('apc_clear_cache')) apc_clear_cache();
+            if (function_exists('opcache_reset')) opcache_reset();
 
-        //发布时候路径问题
-        if (file_exists("/var/log/api/webroot")) {
-            $webroot = trim(file_get_contents("/var/log/api/webroot"));
-            define('__ROOT__', $webroot . DIRECTORY_SEPARATOR);
-        } else {
-            define('__ROOT__', __FILEROOT__);
-        }
-        echo __ROOT__;
-        $loader = require __ROOT__.'/vendor/autoload.php';
-        $app = new \Group\Sync\SyncApp();
-        $app->initSelf();
-        $app->registerServices();
-        $app->singleton('container')->setAppPath(__ROOT__);
-
-        //设置不同进程名字,方便grep管理
-        if (PHP_OS !== 'Darwin') {
-            if ($workerId >= $serv->setting['worker_num']) {
-                swoole_set_process_name("php {$this->servName}: task");
+            //发布时候路径问题
+            if (file_exists("/var/log/api/webroot")) {
+                $webroot = trim(file_get_contents("/var/log/api/webroot"));
+                define('__ROOT__', $webroot . DIRECTORY_SEPARATOR);
             } else {
-                swoole_set_process_name("php {$this->servName}: worker");
+                define('__ROOT__', __FILEROOT__);
             }
+            echo __ROOT__;
+            $loader = require __ROOT__.'/vendor/autoload.php';
+            $app = new \Group\Sync\SyncApp();
+            $app->initSelf();
+            $app->registerServices();
+            $app->singleton('container')->setAppPath(__ROOT__);
+
+            //设置不同进程名字,方便grep管理
+            if (PHP_OS !== 'Darwin') {
+                if ($workerId >= $serv->setting['worker_num']) {
+                    swoole_set_process_name("php {$this->servName}: task");
+                } else {
+                    swoole_set_process_name("php {$this->servName}: worker");
+                }
+            }
+        } catch (\Exception $e) {
+            echo $e->getMessage().PHP_EOL;
         }
-        // 判定是否为Task Worker进程
-        // if ($workerId >= $serv->setting['worker_num']) {
-        // } else {
-        //     //$this->createTaskTable();
-        // }
     }
 
     public function onWorkerStop(swoole_server $serv, $workerId)
