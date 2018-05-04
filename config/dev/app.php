@@ -43,11 +43,11 @@ return [
     'ip' => '127.0.0.1',
 
     'host' => '0.0.0.0',
-    'port' => 9777,
+    'port' => 9779,
 
     'setting' => [
         //日志
-        'daemonize' => true,
+        //'daemonize' => true,
         'log_file' => 'runtime/error.log',
         'worker_num' => 2,    //worker process num
         'backlog' => 256,   //listen backlog
