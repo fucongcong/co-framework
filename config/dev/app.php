@@ -47,7 +47,7 @@ return [
 
     'setting' => [
         //日志
-        //'daemonize' => true,
+        'daemonize' => true,
         'log_file' => 'runtime/error.log',
         'worker_num' => 2,    //worker process num
         'backlog' => 256,   //listen backlog

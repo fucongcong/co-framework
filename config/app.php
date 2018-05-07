@@ -3,7 +3,7 @@ return [
     'environment' => 'dev',
 
     //apollo config center
-    'config_center' => 'apollo',
+    'config_center' => false,
     'config_url' => "http://localhost:8080",
     'file_type' => "yml",
     'appId' => 'co',
