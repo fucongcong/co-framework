@@ -5,7 +5,8 @@ return [
     //apollo config center
     'config_center' => 'apollo',
     'config_url' => "http://localhost:8080",
-    'appId' => 'groupco',
+    'file_type' => "yml",
+    'appId' => 'co',
     'cluster' => 'default',
     'poll_time' => 2,
 ];

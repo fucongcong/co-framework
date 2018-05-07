@@ -114,6 +114,8 @@ class Server
         }
 
         $this->serv->start();
+
+        $this->setConfigCenter($this->serv);
     }
 
     /**
@@ -601,6 +603,12 @@ class Server
         return $registry->getRegistryProcess($this->config['registry_address']);
     }
 
+    private function setConfigCenter($serv)
+    {
+        if (Config::get('app::config_center', false) == "apollo") {
+            \Group\Config\ApolloConfig::poll($serv, Config::get('app::poll_time', 2));
+        }
+    }
     /**
      * 遍历src/Service目录下的服务
      * @return service列表

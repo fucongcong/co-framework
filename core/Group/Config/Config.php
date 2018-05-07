@@ -103,6 +103,7 @@ class Config implements ConfigContract
         if (!$this->env) {
             $gapp = require_once(__ROOT__."config/app.php");
             $this->env = $gapp['environment'];
+            $this->config['gapp'] = $gapp;
         }
 
         if (!isset($config[$key])) {
@@ -112,13 +113,12 @@ class Config implements ConfigContract
                 $app = require_once(__ROOT__."config/".$key.".php");
             }
 
-            if ($gapp) $app = array_merge($gapp, $app);
-
             if ($key == "app") {
                 $app['environment'] = $this->env;
+                $this->config['app'] = array_merge($this->config['gapp'], $app);
+            } else {
+                $this->config = array_merge($this->config, [$key => $app]);
             }
-
-            $this->config = array_merge($this->config, [$key => $app]);
         }
 
         return $this->config;

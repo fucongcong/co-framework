@@ -4,6 +4,7 @@ namespace Group\Config;
 
 use Group\Config\Config as gConfig;
 use Group\Contracts\Config\Config as ConfigContract;
+use Symfony\Component\Yaml\Yaml;
 
 class ApolloConfig implements ConfigContract
 {   
@@ -120,15 +121,32 @@ class ApolloConfig implements ConfigContract
         $appId = gConfig::get('app::appId', ''); 
         $configUrl = gConfig::get('app::config_url', '');
         $cluster = gConfig::get('app::cluster', '');
-        $data = $this->curlGet($configUrl."/configfiles/json/{$appId}/{$cluster}/{$namespace}.json");
-        if ($data && ($res = json_decode($data, true))) {    
-            if (isset($res['content']) && ($conf = json_decode($res['content'], true))) {
-                $this->config[$namespace] = $conf;
-                return $conf;
-            }
+        $fileType = gConfig::get('app::file_type', 'json');
+
+        if (!in_array($fileType, ['json', 'yml', 'yaml'])) {
+            return [];
         }
 
-        return [];
+        $data = $this->curlGet($configUrl."/configfiles/json/{$appId}/{$cluster}/{$namespace}.{$fileType}");
+        if ($data) {
+            $res = json_decode($data, true);
+        }
+
+        switch ($fileType) {
+            case 'json':
+                if (isset($res['content']) && ($conf = json_decode($res['content'], true))) {
+                    $this->config[$namespace] = $conf;
+                }
+                break;
+            case 'yaml':
+            case 'yml':
+                if (isset($res['content']) && ($conf = Yaml::parse($res['content']))) {
+                    $this->config[$namespace] = $conf;
+                }
+                break;
+        }
+dump(isset($this->config['param']) ? $this->config['param'] : []);
+        return isset($this->config[$namespace]) ? $this->config[$namespace] : [];
     }
 
     private function curlGet($url)

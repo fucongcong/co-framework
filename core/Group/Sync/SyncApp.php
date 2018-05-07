@@ -64,12 +64,12 @@ class SyncApp
     ];
 
     public function __construct()
-    { 
-        $this->aliasLoader();
-
+    {
         $this->doSingle();
 
-        $this->doSingleInstance();
+        if (Config::get('app::config_center', false) == "apollo") {
+            $this->setAliases('Config', 'Group\Config\ApolloConfig');
+        }
     }
 
     /**
@@ -144,7 +144,11 @@ class SyncApp
     }
 
     public function initSelf()
-    {
+    {   
+        $this->aliasLoader();
+
+        $this->doSingleInstance();
+
         self::$instance = $this;
     }
 
@@ -182,6 +186,11 @@ class SyncApp
         foreach ($this->serviceProviders as $key => $val) {
             if ($val == $provider) unset($this->serviceProviders[$key]);
         } 
+    }
+
+    public function setAliases($key, $namespace)
+    {
+        $this->aliases[$key] = $namespace;
     }
 
     /**
