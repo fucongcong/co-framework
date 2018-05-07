@@ -145,7 +145,7 @@ class ApolloConfig implements ConfigContract
                 }
                 break;
         }
-dump(isset($this->config['param']) ? $this->config['param'] : []);
+
         return isset($this->config[$namespace]) ? $this->config[$namespace] : [];
     }
 
