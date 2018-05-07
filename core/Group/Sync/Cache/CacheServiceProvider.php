@@ -4,6 +4,7 @@ namespace Group\Sync\Cache;
 
 use ServiceProvider;
 use Group\Sync\Cache\RedisCacheService;
+use Config;
 
 class CacheServiceProvider extends ServiceProvider
 {   
@@ -19,7 +20,12 @@ class CacheServiceProvider extends ServiceProvider
 
         if ($this->cache == 'redisCache') {
             $this->app->singleton($this->cache, function () {
-                return new RedisCacheService($this->app->singleton('redis'));
+                $config = Config::get("database::redis");
+                if (isset($config['cluster']) && $config['cluster']) {
+                    return new RedisCacheService($this->app->singleton('redisCluster'));
+                } else {
+                    return new RedisCacheService($this->app->singleton('redis'));
+                }
             });
         }
     }

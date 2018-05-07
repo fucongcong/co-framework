@@ -2,7 +2,7 @@
 return [
 /****************FRAMEWORK CONFIG*********************/
     //debug开启后service会打印接受到的数据包
-    'debug' => false,
+    'debug' => true,
 
     //zh|en|fr...
     'locale' => 'zh',

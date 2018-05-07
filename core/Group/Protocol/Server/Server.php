@@ -193,12 +193,9 @@ class Server
             } else {
                 swoole_set_process_name("php {$this->servName}: worker");
             }
+        } catch (\Exception $e) {
+            echo $e->getMessage().PHP_EOL;
         }
-        // 判定是否为Task Worker进程
-        // if ($workerId >= $serv->setting['worker_num']) {
-        // } else {
-        //     //$this->createTaskTable();
-        // }
     }
 
     public function onWorkerStop(swoole_server $serv, $workerId)
