@@ -1,9 +1,9 @@
 <?php
 
-namespace src\Service\{{name}}\Dao\Impl;
+namespace src\Service\{{group}}\Dao\Impl;
 
 use Dao;
-use src\Service\{{name}}\Dao\{{name}}Dao;
+use src\Service\{{group}}\Dao\{{name}}Dao;
 
 class {{name}}DaoImpl extends Dao implements {{name}}Dao
 {
