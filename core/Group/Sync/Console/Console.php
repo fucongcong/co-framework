@@ -12,7 +12,7 @@ class Console
      */
     protected $options = [
         'generate:service' => [
-            'args' => 'name',
+            'args' => 'name|groupname:name',
             'command' => 'Group\Sync\Console\Command\GenerateServiceCommand',
             'help' => '生成一个自定义service'
         ],

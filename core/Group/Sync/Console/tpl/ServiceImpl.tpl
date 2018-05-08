@@ -1,9 +1,9 @@
 <?php
 
-namespace src\Service\{{name}}\Service\Impl;
+namespace src\Service\{{group}}\Service\Impl;
 
-use src\Service\{{name}}\Service\Rely\{{name}}BaseService;
-use src\Service\{{name}}\Service\{{name}}Service;
+use src\Service\{{group}}\Service\Rely\{{name}}BaseService;
+use src\Service\{{group}}\Service\{{name}}Service;
 
 class {{name}}ServiceImpl extends {{name}}BaseService implements {{name}}Service
 {
