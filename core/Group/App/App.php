@@ -80,9 +80,7 @@ class App
     protected $names = [];
 
     public function __construct()
-    { 
-        $this->aliasLoader();
-
+    {
         $this->doSingle();
     }
 
@@ -91,7 +89,8 @@ class App
      *
      */
     public function init()
-    {
+    {   
+        $this->aliasLoader();
         $this->initSelf();
         $this->setServiceProviders();
         $this->registerOnWorkStartServices();
@@ -342,5 +341,10 @@ class App
         }
 
         return null;
+    }
+
+    public function setAliases($key, $namespace)
+    {
+        $this->aliases[$key] = $namespace;
     }
 }
