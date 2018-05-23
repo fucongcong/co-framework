@@ -5,6 +5,7 @@ namespace Group\Listeners;
 use Group\Events\HttpEvent;
 use Group\Events\KernalEvent;
 use StaticCache;
+use Config;
 
 class ServiceFailListener extends \Listener
 {
@@ -18,10 +19,12 @@ class ServiceFailListener extends \Listener
      * @param  \Event
      */
     public function onServiceFail(\Event $event)
-    {
+    {   
+        $retries = Config::get("app::retries", 3);
+
         $info = $event->getProperty();
         $errorCount = StaticCache::get('Error:'.$info['service'], 0);
-        if ($errorCount <= 1) {
+        if ($errorCount <= $retries) {
             StaticCache::set('Error:'.$info['service'], $errorCount + 1, false);
             return;
         }
