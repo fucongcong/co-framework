@@ -111,8 +111,13 @@ class App
 
         yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::INIT, new Event($container));
 
+        $rawContent = null;
+        if ($request->header['content-type'] != "application/x-www-form-urlencoded") {
+            $rawContent = $request->rawContent();
+        }
+
         $request = new \Request($request->get, $request->post, [], $request->cookie
-            , $request->files, $request->server);
+            , $request->files, $request->server, $rawContent);
         if (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
             && in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
         ) {

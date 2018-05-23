@@ -7,6 +7,7 @@ use Group\Events\KernalEvent;
 use Group\Protocol\DataPack;
 use Group\Protocol\ServiceProtocol as Protocol;
 use Event;
+use Config;
 
 class AsyncService
 {   
@@ -26,6 +27,7 @@ class AsyncService
     {   
         $this->serv = $serv;
         $this->port = $port;
+        $this->timeout = Config::get("app::timeout", 5);
     }
 
     /**

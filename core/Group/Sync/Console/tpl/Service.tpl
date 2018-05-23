@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Service\{{name}}\Service;
+namespace src\Service\{{group}}\Service;
 
 interface {{name}}Service
 {
