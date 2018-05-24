@@ -112,7 +112,7 @@ class App
         yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::INIT, new Event($container));
 
         $rawContent = null;
-        if ($request->header['content-type'] != "application/x-www-form-urlencoded") {
+        if (isset($request->header['content-type']) && $request->header['content-type'] != "application/x-www-form-urlencoded") {
             $rawContent = $request->rawContent();
         }
 
