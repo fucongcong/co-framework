@@ -599,7 +599,7 @@ class Server
     private function getRegistryProcess()
     {   
         $registry = new Registry;
-        return $registry->getRegistryProcess($this->config['registryAddress']);
+        return $registry->getRegistryProcess($this->config['registry_address']);
     }
 
     private function setConfigCenter($serv)

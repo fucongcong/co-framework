@@ -3,10 +3,10 @@ return [
     'environment' => 'dev',
 
     //apollo config center
-    'config_center' => 'apollo',
-    'apollo.configUrl' => "http://localhost:8080",
-    'apollo.fileType' => "yml",
-    'apollo.appId' => 'co',
-    'apollo.cluster' => 'default',
-    'apollo.pollTime' => 2,
+    'config_center' => false,
+    'config_url' => "http://localhost:8080",
+    'file_type' => "yml",
+    'appId' => 'co',
+    'cluster' => 'default',
+    'poll_time' => 2,
 ];
