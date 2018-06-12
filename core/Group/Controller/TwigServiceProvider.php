@@ -19,9 +19,9 @@ class TwigServiceProvider extends ServiceProvider
             $loader = new \Twig_Loader_Filesystem(__ROOT__.$path);
 
             if (\Config::get('view::cache')) {
-                $cache_dir = \Config::get('view::cache_dir');
+                $cacheDir = \Config::get('view::cacheDir');
                 $env = array(
-                    'cache' => __ROOT__.$cache_dir
+                    'cache' => __ROOT__.$cacheDir
                 );
             }
 
