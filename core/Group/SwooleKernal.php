@@ -110,7 +110,7 @@ class SwooleKernal
 
         if (Config::get('app::config_center', false) == "apollo") {
             $this->app->setAliases('Config', 'Group\Config\ApolloConfig');
-            \Group\Config\ApolloConfig::poll($serv, Config::get('app::poll_time', 2));
+            \Group\Config\ApolloConfig::poll($serv, Config::get('app::apollo.pollTime', 2));
         }
         
         $this->app->init();
