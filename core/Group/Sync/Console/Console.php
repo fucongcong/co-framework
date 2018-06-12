@@ -98,7 +98,7 @@ class Console
      */
     private function mergeConfig()
     {
-        $commands = \Config::get("app::console_commands");
+        $commands = \Config::get("app::consoleCommands");
         $options = [];
         $helps = "";
         foreach ($commands as $command => $option) {
