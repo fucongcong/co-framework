@@ -108,7 +108,7 @@ class SwooleKernal
         $this->maxTaskId = 0;
         $this->app = new App();
 
-        if (Config::get('app::config_center', false) == "apollo") {
+        if (Config::get('app::configCenter', false) == "apollo") {
             $this->app->setAliases('Config', 'Group\Config\ApolloConfig');
             \Group\Config\ApolloConfig::poll($serv, Config::get('app::apollo.pollTime', 2));
         }

@@ -604,8 +604,8 @@ class Server
 
     private function setConfigCenter($serv)
     {
-        if (Config::get('app::config_center', false) == "apollo") {
-            \Group\Config\ApolloConfig::poll($serv, Config::get('app::poll_time', 2));
+        if (Config::get('app::configCenter', false) == "apollo") {
+            \Group\Config\ApolloConfig::poll($serv, Config::get('app::apollo.pollTime', 2));
         }
     }
     /**
