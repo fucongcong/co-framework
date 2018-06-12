@@ -56,9 +56,9 @@ class Sync
 
         if (!isset($config[$argv[1]])) return;
 
-        $registryAddress = \Config::get("service::registryAddress");
-        if ($registryAddress && $registryAddress != "") {
-            $config[$argv[1]]['registryAddress'] = $registryAddress;
+        $registry_address = \Config::get("service::registry_address");
+        if ($registry_address && $registry_address != "") {
+            $config[$argv[1]]['registry_address'] = $registry_address;
         }
         $config[$argv[1]]['debug'] = \Config::get("app::debug");
 

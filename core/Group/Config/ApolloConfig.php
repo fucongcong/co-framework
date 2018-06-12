@@ -118,10 +118,10 @@ class ApolloConfig implements ConfigContract
 
     public function pullConfig($namespace)
     {   
-        $appId = gConfig::get('app::apollo.appId', ''); 
-        $configUrl = gConfig::get('app::apollo.configUrl', '');
-        $cluster = gConfig::get('app::apollo.cluster', '');
-        $fileType = gConfig::get('app::apollo.fileType', 'json');
+        $appId = gConfig::get('app::appId', ''); 
+        $configUrl = gConfig::get('app::config_url', '');
+        $cluster = gConfig::get('app::cluster', '');
+        $fileType = gConfig::get('app::file_type', 'json');
 
         if (!in_array($fileType, ['json', 'yml', 'yaml'])) {
             return [];

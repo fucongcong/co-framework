@@ -56,7 +56,7 @@ class ExceptionsHandler
     {
         //dev下面需要render信息
         if ($this->container->getEnvironment() == 'prod') {
-            $e = $this->container->singleton('twig')->render(\Config::get('view::errorPage'));
+            $e = $this->container->singleton('twig')->render(\Config::get('view::error_page'));
         }else {
             if (!is_array($e)) {
                 $trace        = debug_backtrace();
