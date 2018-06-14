@@ -31,7 +31,7 @@ return [
     ],
 
     //扩展console命令行控制台
-    'console_commands' => [
+    'consoleCommands' => [
         'log.clear' => [
             'command' => 'src\Web\Command\LogClearCommand', //执行的类
             'help' => '清除日志', //提示
@@ -63,17 +63,18 @@ return [
 
     //依赖的服务模块 
     'services' => ["User", "Order", "Monitor", "NodeCenter"],
-
+    //服务调用失败次数，超出后进行故障切换
+    'retries' => 3,
+    //异步rpc方法调用超时时间
+    'timeout' => 5,
+    
     //此参数可不填。通信协议 eof：结束符, buf：包头+包体。也可以填自定义的customProtocols
     'protocol' => 'buf',
     //包体的打包方式json,serialize
     'pack' => 'json',
     //是否启用gzip压缩true,false
     'gzip' => false,
-    //服务调用失败次数，超出后进行故障切换
-    'retries' => 3,
-    //异步rpc方法调用超时时间
-    'timeout' => 5,
+
 
     'customProtocols' => [
         'myeof' => 'src\Web\Protocol\MyeofProtocol',

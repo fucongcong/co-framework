@@ -67,7 +67,7 @@ class SyncApp
     {
         $this->doSingle();
 
-        if (Config::get('app::config_center', false) == "apollo") {
+        if (Config::get('app::configCenter', false) == "apollo") {
             $this->setAliases('Config', 'Group\Config\ApolloConfig');
         }
     }
