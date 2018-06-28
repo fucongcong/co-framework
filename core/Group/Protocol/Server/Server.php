@@ -116,6 +116,8 @@ class Server
         }
 
         $this->serv->start();
+
+        $this->setConfigCenter($this->serv);
     }
 
     /**
@@ -181,7 +183,6 @@ class Server
         try {
             if (function_exists('apc_clear_cache')) apc_clear_cache();
             if (function_exists('opcache_reset')) opcache_reset();
-
             //发布时候路径问题
             if (file_exists("/var/log/api/webroot")) {
                 $webroot = trim(file_get_contents("/var/log/api/webroot"));
@@ -190,6 +191,7 @@ class Server
                 define('__ROOT__', __FILEROOT__);
             }
             echo __ROOT__;
+
             $loader = require __ROOT__.'/vendor/autoload.php';
             $app = new \Group\Sync\SyncApp();
             $app->initSelf();
@@ -608,9 +610,15 @@ class Server
     private function getRegistryProcess()
     {   
         $registry = new Registry;
-        return $registry->getRegistryProcess($this->config['registry_address']);
+        return $registry->getRegistryProcess($this->config['registryAddress']);
     }
 
+    private function setConfigCenter($serv)
+    {
+        if (Config::get('app::configCenter', false) == "apollo") {
+            \Group\Config\ApolloConfig::poll($serv, Config::get('app::poll_time', 2));
+        }
+    }
     /**
      * 遍历src/Service目录下的服务
      * @return service列表

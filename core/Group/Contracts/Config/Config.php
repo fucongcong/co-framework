@@ -10,7 +10,7 @@ interface Config
      * @param  configName,  name::key
      * @return string
      */
-    public static function get($configName);
+    public static function get($configName, $default = []);
 
     /**
      * 设置config下得值
@@ -39,5 +39,5 @@ interface Config
      * @param  configName,  name::key
      * @return array
      */
-    public function read($configName);
+    public function read($configName, $default);
 }

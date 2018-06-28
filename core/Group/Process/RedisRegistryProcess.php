@@ -24,7 +24,8 @@ class RedisRegistryProcess extends RegistryProcess
      * @param array $config
      */
     public function __construct($config)
-    {
+    {   
+        $this->config = $config;
         $this->host = $config['host'];
         $this->port = $config['port'];
         $this->redis = new Redis;
@@ -48,9 +49,14 @@ class RedisRegistryProcess extends RegistryProcess
         $process = new swoole_process(function($process) use ($server, $redis, $services) {
             //订阅服务
             $redis->subscribe($services, function ($redis, $chan, $msg) use ($server) {
+                if ($this->config['prefix']) {
+                    list($prefix, $chan) = explode($this->config['prefix'], $chan);
+                }
+
                 $redis = new Redis;
                 $redis->connect($this->host, $this->port);
                 if (isset($this->config['auth'])) $redis->auth($this->config['auth']);
+                $redis->setOption(Redis::OPT_PREFIX, isset($this->config['prefix']) ? $this->config['prefix'] : '');
                 
                 $addresses = $redis->sMembers('Providers:'.$chan);
                 $addresses = json_encode($addresses);

@@ -2,7 +2,6 @@
 
 namespace Group\Config;
 
-use Exception;
 use Group\Contracts\Config\Config as ConfigContract;
 
 class Config implements ConfigContract
@@ -19,9 +18,9 @@ class Config implements ConfigContract
      * @param  configName,  name::key
      * @return string
      */
-    public static function get($configName)
+    public static function get($configName, $default = array())
     {
-        return  self::getInstance()->read($configName);
+        return self::getInstance()->read($configName, $default);
     }
 
     /**
@@ -42,7 +41,7 @@ class Config implements ConfigContract
      * @param  configName,  name::key
      * @return array
      */
-    public function read($configName)
+    public function read($configName, $default)
     {
         $configName = explode('::', $configName);
 
@@ -53,7 +52,7 @@ class Config implements ConfigContract
             }
         }
 
-        return array();
+        return $default;
 
     }
 
@@ -105,9 +104,11 @@ class Config implements ConfigContract
             $dir = __FILEROOT__;
         }
 
+        $gapp = null;
         if (!$this->env) {
-            $app = require_once($dir."config/app.php");
-            $this->env = $app['environment'];
+            $gapp = require_once(__ROOT__."config/app.php");
+            $this->env = $gapp['environment'];
+            $this->config['gapp'] = $gapp;
         }
 
         if (!isset($config[$key])) {
@@ -119,9 +120,10 @@ class Config implements ConfigContract
 
             if ($key == "app") {
                 $app['environment'] = $this->env;
+                $this->config['app'] = array_merge($this->config['gapp'], $app);
+            } else {
+                $this->config = array_merge($this->config, [$key => $app]);
             }
-
-            $this->config = array_merge($this->config, [$key => $app]);
         }
 
         return $this->config;

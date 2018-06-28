@@ -116,6 +116,12 @@ class SwooleKernal
 
         $this->maxTaskId = 0;
         $this->app = new App();
+
+        if (Config::get('app::configCenter', false) == "apollo") {
+            $this->app->setAliases('Config', 'Group\Config\ApolloConfig');
+            \Group\Config\ApolloConfig::poll($serv, Config::get('app::poll_time', 2));
+        }
+        
         $this->app->init();
         //设置不同进程名字,方便grep管理
         if (PHP_OS !== 'Darwin') {
