@@ -1,6 +1,7 @@
 <?php
 return [
-/****************FRAMEWORK CONFIG*********************/
+
+    /****************FRAMEWORK CONFIG*********************/
     //debug开启后service会打印接受到的数据包
     'debug' => true,
 
@@ -31,14 +32,15 @@ return [
     ],
 
     //扩展console命令行控制台
-    'console_commands' => [
+    'consoleCommands' => [
         'log.clear' => [
             'command' => 'src\Web\Command\LogClearCommand', //执行的类
             'help' => '清除日志', //提示
         ],
     ],
-//**修改一下配置后需要restart server。reload不生效！
-/****************SERVER CONFIG*********************/
+
+    //**修改一下配置后需要restart server。reload不生效！
+    /****************SERVER CONFIG*********************/
     //本机当前内网ip
     'ip' => '127.0.0.1',
 
@@ -55,14 +57,20 @@ return [
         'heartbeat_check_interval' => 10,
         'dispatch_mode' => 1, 
         'max_request' => 10000,
+        'reload_async' => true,
     ],
 
     //在启动时可以添加用户自定义的工作进程,必须是swoole_process,请继承Group\Process抽象类
     'process' => [
     ],
 
+
     //依赖的服务模块 
     'services' => ["User", "Order", "Monitor", "NodeCenter"],
+    //服务调用失败次数，超出后进行故障切换
+    'retries' => 3,
+    //异步rpc方法调用超时时间
+    'timeout' => 5,
 
     //此参数可不填。通信协议 eof：结束符, buf：包头+包体。也可以填自定义的customProtocols
     'protocol' => 'buf',

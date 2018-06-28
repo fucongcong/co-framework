@@ -13,12 +13,12 @@ class Registry
     public function getRegistryProcess($address = null)
     {   
         if (!isset($address)) {
-            $address = Config::get('service::registry_address');
+            $address = Config::get('service::registryAddress');
         }
         if (empty($address)) return false;
 
         if (!isset($address['scheme'])) {
-            echo "registry_address 配置有误".PHP_EOL;
+            echo "registryAddress 配置有误".PHP_EOL;
             return false;
         }
 
