@@ -55,6 +55,7 @@ return [
         'heartbeat_check_interval' => 10,
         'dispatch_mode' => 1, 
         'max_request' => 10000,
+        'reload_async' => true,
     ],
 
     //在启动时可以添加用户自定义的工作进程,必须是swoole_process,请继承Group\Process抽象类
@@ -67,14 +68,13 @@ return [
     'retries' => 3,
     //异步rpc方法调用超时时间
     'timeout' => 5,
-    
+
     //此参数可不填。通信协议 eof：结束符, buf：包头+包体。也可以填自定义的customProtocols
     'protocol' => 'buf',
     //包体的打包方式json,serialize
     'pack' => 'json',
     //是否启用gzip压缩true,false
     'gzip' => false,
-
 
     'customProtocols' => [
         'myeof' => 'src\Web\Protocol\MyeofProtocol',

@@ -27,10 +27,6 @@ class ServiceProtocol extends Protocol
      */
     public static function pack($cmd = '', $data = [])
     {   
-        // if ($cmd == '' && is_string($data)) {
-        //     return $data;
-        // }
-
         if (!self::$protocol) {
             self::$protocol = Config::get("app::protocol");
         }
