@@ -599,12 +599,12 @@ class Server
     private function getRegistryProcess()
     {   
         $registry = new Registry;
-        return $registry->getRegistryProcess($this->config['registryAddress']);
+        return $registry->getRegistryProcess($this->config['registry_address']);
     }
 
     private function setConfigCenter($serv)
     {
-        if (Config::get('app::configCenter', false) == "apollo") {
+        if (Config::get('app::config_center', false) == "apollo") {
             \Group\Config\ApolloConfig::poll($serv, Config::get('app::poll_time', 2));
         }
     }
@@ -628,7 +628,8 @@ class Server
         }
 
         $data = [];
-        $url = getLocalIp().":".$this->config['port'];
+        if (!isset($this->config['ip'])) $this->config['ip'] = getLocalIp();
+        $url = $this->config['ip'].":".$this->config['port'];
         foreach ($services as $service) {
             $data[$service] = $url;
         }
