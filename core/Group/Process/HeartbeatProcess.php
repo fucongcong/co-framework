@@ -17,7 +17,7 @@ class HeartbeatProcess extends Process
      */
     public function register()
     {
-        $address = Config::get('service::registry_address');
+        $address = Config::get('service::registryAddress');
         if (empty($address)) return false;
 
         if (!isset($address['scheme'])) {
