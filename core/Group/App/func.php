@@ -109,3 +109,8 @@ function throwException($e) {
         $task->run();
     });
 }
+
+function getLocalIp() {
+    $ipList = swoole_get_local_ip();
+    return implode(", ", $ipList);
+}
