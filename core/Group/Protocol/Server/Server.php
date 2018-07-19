@@ -628,7 +628,7 @@ class Server
         }
 
         $data = [];
-        $url = $this->config['ip'].":".$this->config['port'];
+        $url = getLocalIp().":".$this->config['port'];
         foreach ($services as $service) {
             $data[$service] = $url;
         }

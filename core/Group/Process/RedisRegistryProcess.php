@@ -69,7 +69,7 @@ class RedisRegistryProcess extends RegistryProcess
         });
 
         foreach ($services as $service) {
-            $this->redis->sAdd('Consumers:'.$service, Config::get("app::ip").":".Config::get("app::port"));
+            $this->redis->sAdd('Consumers:'.$service, getLocalIp().":".Config::get("app::port"));
         }
 
         return $process;
@@ -82,7 +82,7 @@ class RedisRegistryProcess extends RegistryProcess
     {
         $services = Config::get("app::services");
         foreach ($services as $service) {
-            $this->redis->sRem('Consumers:'.$service, Config::get("app::ip").":".Config::get("app::port"));
+            $this->redis->sRem('Consumers:'.$service, getLocalIp().":".Config::get("app::port"));
         }
     }
 

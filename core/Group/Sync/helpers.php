@@ -22,3 +22,8 @@ if (!function_exists('app')) {
         return SyncApp::getInstance()->make($abstract);
     }
 }
+
+function getLocalIp() {
+    $ipList = swoole_get_local_ip();
+    return implode(", ", $ipList);
+}

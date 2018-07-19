@@ -116,7 +116,7 @@ class MysqlRegistryProcess extends RegistryProcess
         });
 
         //将消费者信息写入注册中心
-        $host = Config::get("app::ip");
+        $host = getLocalIp();
         $port = Config::get("app::port");
         foreach ($services as $service) {
             $this->deleteConsumers($service, $host.":".$port);
@@ -134,7 +134,7 @@ class MysqlRegistryProcess extends RegistryProcess
     public function unSubscribe()
     {
         $services = Config::get("app::services");
-        $host = Config::get("app::ip");
+        $host = getLocalIp();
         $port = Config::get("app::port");
         foreach ($services as $service) {
             $this->deleteConsumers($service, $host.":".$port);
