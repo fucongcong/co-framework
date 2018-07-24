@@ -599,12 +599,12 @@ class Server
     private function getRegistryProcess()
     {   
         $registry = new Registry;
-        return $registry->getRegistryProcess($this->config['registry_address']);
+        return $registry->getRegistryProcess($this->config['registryAddress']);
     }
 
     private function setConfigCenter($serv)
     {
-        if (Config::get('app::config_center', false) == "apollo") {
+        if (Config::get('app::configCenter', false) == "apollo") {
             \Group\Config\ApolloConfig::poll($serv, Config::get('app::poll_time', 2));
         }
     }
