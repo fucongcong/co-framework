@@ -141,7 +141,7 @@ class Router implements RouterContract
     public function getTpl($config)
     {
         list($group, $subGroup, $controller, $action) = explode(':', $config['controller']);
-        $className = 'src\\'.$group.'\\Controller\\'.$subGroup.'\\'.$controller.'Controller';
+        $className = 'src\\Module\\'.$group.'\\Controller\\'.$subGroup.'\\'.$controller.'Controller';
         $action = $action.'Action';
 
         $this->route->setAction($action);
