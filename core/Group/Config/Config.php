@@ -106,7 +106,7 @@ class Config implements ConfigContract
 
         $gapp = null;
         if (!$this->env) {
-            $gapp = require_once(__ROOT__."config/app.php");
+            $gapp = require_once($dir."config/app.php");
             $this->env = $gapp['environment'];
             $this->config['gapp'] = $gapp;
         }
