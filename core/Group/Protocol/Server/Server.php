@@ -321,6 +321,10 @@ class Server
                 'trace'   => $e->getTraceAsString(),
                 'type'    => $e->getCode(),
             ]);
+            return [
+                'fd' => $server['fd'],
+                'data' => fasle
+            ];
         }
     }
 
