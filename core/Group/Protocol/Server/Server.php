@@ -323,7 +323,7 @@ class Server
             ]);
             return [
                 'fd' => $server['fd'],
-                'data' => fasle,
+                'data' => false,
                 'callId' => $server['callId']
             ];
         }
