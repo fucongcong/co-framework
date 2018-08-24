@@ -402,7 +402,7 @@ class Server
      */
     private function sendData(swoole_server $serv, $fd, $data)
     {   
-        if ($data === false) {
+        if ($data === false || $data === null) {
             $data = 0;
         }
 
