@@ -220,7 +220,7 @@ class SwooleKernal
      * @param  [array] $data
      */
     public function onPipeRegistryMessage($serv, $src_worker_id, $data)
-    {   
+    {
         $this->registry->updateServicesList($data);
     }
 

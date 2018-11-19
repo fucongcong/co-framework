@@ -19,6 +19,17 @@ class ServiceCenter
      */
     protected $container;
 
+    protected $usePool = false;
+
+    /**
+     * 是否开启连接池
+     * @param  boolean $status
+     */
+    public function enablePool($status)
+    {
+        $this->usePool = boolval($status);
+    }
+
     /**
      * @param  string $serviceName 服务名
      * @return object AsyncService
@@ -30,6 +41,7 @@ class ServiceCenter
         return $this->container->singleton(strtolower($serviceName), function() use ($serviceName, $ip, $port) {
             $service = new AsyncService($ip, $port);
             $service->setService($serviceName);
+            $service->enablePool($this->usePool);
             return $service;
         });
     }
