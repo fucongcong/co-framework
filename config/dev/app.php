@@ -3,7 +3,7 @@ return [
 
     /****************FRAMEWORK CONFIG*********************/
     //debug开启后service会打印接受到的数据包
-    'debug' => true,
+    'debug' => false,
 
     //zh|en|fr...
     'locale' => 'zh',
@@ -46,14 +46,14 @@ return [
 
     'setting' => [
         //日志
-        'daemonize' => true,
+        //'daemonize' => true,
         'log_file' => 'runtime/error.log',
         'worker_num' => 2,    //worker process num
         'backlog' => 256,   //listen backlog
         'heartbeat_idle_time' => 30,
         'heartbeat_check_interval' => 10,
         'dispatch_mode' => 1, 
-        'max_request' => 10000,
+        'max_request' => 100,
         'reload_async' => true,
     ],
 
@@ -68,6 +68,8 @@ return [
     'retries' => 3,
     //异步rpc方法调用超时时间
     'timeout' => 5,
+    //每个tcp连接池数量
+    'maxPool' => 5,
 
     //此参数可不填。通信协议 eof：结束符, buf：包头+包体。也可以填自定义的customProtocols
     'protocol' => 'buf',

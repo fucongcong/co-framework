@@ -3,6 +3,7 @@
 namespace Group\Protocol\Client;
 
 use Group\Async\Client\Tcp;
+use Group\Protocol\Client\ChunkSet;
 
 class EofTcp extends Tcp
 {
@@ -10,13 +11,7 @@ class EofTcp extends Tcp
 
     public function __construct($ip, $port)
     {
-        $this->setting = [
-            //打开EOF检测
-            'open_eof_check' => true, 
-            //设置EOF 防止粘包
-            'package_eof' => "\r\n", 
-            'package_max_length' => 2000000, 
-        ];
+        $this->setting = ChunkSet::setting('eof');
 
         parent::__construct($ip, $port);
     }
@@ -28,7 +23,6 @@ class EofTcp extends Tcp
      */
     public function parse($data)
     {
-        $data = explode($this->setting['package_eof'], $data);
-        return $data[0];
+        return ChunkSet::parse('eof', $data);
     }
 }
