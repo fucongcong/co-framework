@@ -59,7 +59,7 @@ function json($data = [], $status = 200, array $headers = [], $options = 0)
  * @return object
  *
  */
-function service_center($serviceName)
+function service_center($serviceName, $usePool = false)
 {   
     $container = (yield getContainer());
 
@@ -74,6 +74,7 @@ function service_center($serviceName)
     }
 
     $container->singleton('serviceCenter')->setContainer($container);
+    $container->singleton('serviceCenter')->enablePool($usePool);
     yield $container->singleton('serviceCenter')->createService($serviceName);
 }
     
@@ -84,7 +85,7 @@ function service_center($serviceName)
  * @return object
  *
  */
-function service($serviceName)
+function service($serviceName, $usePool = false)
 {   
     return app('service')->createService($serviceName);
 }
@@ -108,4 +109,9 @@ function throwException($e) {
         $task->setException($e);
         $task->run();
     });
+}
+
+function getLocalIp() {
+    $ipList = swoole_get_local_ip();
+    return implode(", ", $ipList);
 }

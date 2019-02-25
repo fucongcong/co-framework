@@ -53,7 +53,7 @@ class ZookeeperRegistryProcess extends RegistryProcess
         $server = $this->server;
         $this->registry = new Registry;
         foreach ($services as $service) {
-            $this->zk->set("/GroupCo/{$service}/Consumers/".Config::get("app::ip").":".Config::get("app::port"), '');
+            $this->zk->set("/GroupCo/{$service}/Consumers/".Config::get("app::ip", getLocalIp()).":".Config::get("app::port"), '');
 
             $addresses = $this->zk->getChildren("/GroupCo/{$service}/Consumers");
             $this->zk->set("/GroupCo/{$service}/Consumers", json_encode($addresses));
@@ -90,7 +90,7 @@ class ZookeeperRegistryProcess extends RegistryProcess
         $services = Config::get("app::services");
         foreach ($services as $service) {
             try {
-                $this->zk->deleteNode("/GroupCo/{$service}/Consumers/".Config::get("app::ip").":".Config::get("app::port"));
+                $this->zk->deleteNode("/GroupCo/{$service}/Consumers/".Config::get("app::ip", getLocalIp()).":".Config::get("app::port"));
             } catch (Exception $e) {
                 Log::error($e->getMessage());
             }
