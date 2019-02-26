@@ -6,8 +6,11 @@ use Group\Protocol\Client;
 use Group\Events\KernalEvent;
 use Group\Protocol\DataPack;
 use Group\Protocol\ServiceProtocol as Protocol;
+use Group\Async\Pool\TcpPool;
+use Group\Async\Pool\TcpProxy;
 use Event;
 use Config;
+use StaticCache;
 
 class AsyncService
 {   
@@ -22,6 +25,8 @@ class AsyncService
     protected $calls = [];
 
     protected $callId = 0;
+
+    protected $usePool = false;
 
     public function __construct($serv, $port)
     {   
@@ -44,6 +49,15 @@ class AsyncService
         $this->service = $service;
     }
 
+    /**
+     * 是否开启连接池
+     * @param  boolean $status
+     */
+    public function enablePool($status)
+    {
+        $this->usePool = boolval($status);
+    }
+
     public function call($cmd, $data = [], $timeout = false, $monitor = true)
     {   
         $container = (yield getContainer());
@@ -59,6 +73,7 @@ class AsyncService
             $this->timeout = $timeout;
         }
 
+        //封装数据
         if ($this->service) {
             if (is_array($cmd)) {
                 foreach ($cmd as &$one) {
@@ -68,10 +83,22 @@ class AsyncService
                 $cmd = $this->service."\\".$cmd;
             }
         }
-        
         $data = Protocol::pack($cmd, $data);
-        $client = new Client($this->serv, $this->port);
-        $client = $client->getClient();
+
+        //初始化客户端
+        if ($this->usePool) {
+            $pool = app()->singleton('tcpPool_'.$this->serv.$this->port, function() {
+                $list = StaticCache::get('tcpPool', []);
+                $list[] = 'tcpPool_'.$this->serv.$this->port;
+                StaticCache::set('tcpPool', $list, false);
+
+                return new TcpPool($this->serv, $this->port);
+            });
+            $client = new TcpProxy($pool);
+        } else {
+            $client = new Client($this->serv, $this->port);
+            $client = $client->getClient();
+        }
         $client->setTimeout($this->timeout);
         $client->setData($data);
         $res = (yield $client);

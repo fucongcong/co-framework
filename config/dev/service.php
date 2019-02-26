@@ -38,10 +38,10 @@ return [
             'port' => 9518,
             'config' => [
                 'daemonize' => true,        
-                'worker_num' => 5,
-                'max_request' => 50000,
-                'task_worker_num' => 10,
-                'task_max_request' => 50000,
+                'worker_num' => 20,
+                'max_request' => 500,
+                'task_worker_num' => 30,
+                'task_max_request' => 500,
                 'heartbeat_idle_time' => 300,
                 'heartbeat_check_interval' => 60,
                 'dispatch_mode' => 3,
@@ -55,13 +55,13 @@ return [
             'config' => [
                 'daemonize' => true,
                 //worker进程数量         
-                'worker_num' => 5,
+                'worker_num' => 20,
                 //最大请求数，超过后讲重启worker进程
-                'max_request' => 50000,
+                'max_request' => 500,
                 //task进程数量
-                'task_worker_num' => 5,
+                'task_worker_num' => 30,
                 //task进程最大处理请求上限，超过后讲重启task进程
-                'task_max_request' => 50000,
+                'task_max_request' => 500,
                 //心跳检测,长连接超时自动断开，秒
                 'heartbeat_idle_time' => 300,
                 //心跳检测间隔，秒

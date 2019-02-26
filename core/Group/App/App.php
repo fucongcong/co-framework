@@ -13,6 +13,7 @@ use Group\Container\Container;
 use Group\Events\Event;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Group\Events\ExceptionEvent;
+use StaticCache;
 
 class App
 {
@@ -157,7 +158,7 @@ class App
             $this->instances[$name] = call_user_func($callable);
         }
 
-        return $this->instances[$name];
+        return isset($this->instances[$name]) ?  $this->instances[$name] : null;
     }
 
     /**
@@ -276,6 +277,13 @@ class App
     public function releasePool()
     {
         $resources = ['redisPool', 'mysqlPool'];
+        foreach ($resources as $resource) {
+            if (!is_null($this->singleton($resource))) {
+                $this->singleton($resource)->close();
+            }
+        }
+
+        $resources = StaticCache::get('tcpPool', []);
         foreach ($resources as $resource) {
             if (!is_null($this->singleton($resource))) {
                 $this->singleton($resource)->close();
