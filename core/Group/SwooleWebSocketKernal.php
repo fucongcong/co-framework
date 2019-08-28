@@ -76,13 +76,13 @@ class SwooleWebSocketKernal
     public function onWorkerStart($serv, $workerId)
     {   
         try {
-            if (function_exists('opcache_reset')) opcache_reset();
-            if (function_exists('apc_clear_cache')) apc_clear_cache();
-            $loader = require __ROOT__.'/vendor/autoload.php';
-            $app = new \Group\Sync\SyncApp();
-            $app->initSelf();
-            $app->registerServices();
-            $app->singleton('container')->setAppPath(__ROOT__);
+            // if (function_exists('opcache_reset')) opcache_reset();
+            // if (function_exists('apc_clear_cache')) apc_clear_cache();
+            // $loader = require __ROOT__.'/vendor/autoload.php';
+            // $app = new \Group\Sync\SyncApp();
+            // $app->initSelf();
+            // $app->registerServices();
+            // $app->singleton('container')->setAppPath(__ROOT__);
 
             //设置不同进程名字,方便grep管理
             if (PHP_OS !== 'Darwin') {
@@ -134,12 +134,12 @@ class SwooleWebSocketKernal
             return;
         }
 
-        $response->end("123");
+        $response->end("ok");
     }
 
     public function onOpen($serv, $request)
     {
-        dump($request);
+        //dump($request);
     }
 
     public function onClose($serv, $fd)
@@ -154,9 +154,16 @@ class SwooleWebSocketKernal
             $serv->push($frame->fd, 0xA);
             return;
         }
-           dump($frame);
-        //dump($serv->pack("", 9));
-        $serv->push($frame->fd, "收到".$frame->data);
+        $data = json_decode($frame->data, true);
+        if ($data) {
+            if ($serv->isEstablished($data['toFd'])) {
+                $status = $serv->push($data['toFd'], $data['msg']);
+            } else {
+                $status = false;
+            }
+            
+            $serv->push($frame->fd, json_encode(['s' => $status]));
+        }
     }
 
     /**

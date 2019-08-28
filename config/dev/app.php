@@ -19,7 +19,7 @@ return [
     'onWorkStartServices' => [
         'Group\Async\Pool\MysqlPoolServiceProvider',
         'Group\Async\Pool\RedisPoolServiceProvider',
-        //'Group\Async\Pool\WebSocketPoolServiceProvider',
+        'Group\Async\Pool\WebSocketPoolServiceProvider',
     ],
 
     'onRequestServices' => [
@@ -49,7 +49,8 @@ return [
         //日志
         //'daemonize' => true,
         'log_file' => 'runtime/error.log',
-        'worker_num' => 2,    //worker process num
+        'log_level' => 5,
+        'worker_num' => 4,    //worker process num
         'backlog' => 256,   //listen backlog
         'heartbeat_idle_time' => 30,
         'heartbeat_check_interval' => 10,
@@ -68,7 +69,7 @@ return [
     //集群就启用注册中心
     //'ws.registry' => true,
     //连接池大小
-    'ws.maxPool' => 2,
+    'ws.maxPool' => 100,
     'ws.ssl'  => false,
     
     //依赖的服务模块 

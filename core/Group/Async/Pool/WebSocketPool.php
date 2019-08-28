@@ -37,6 +37,8 @@ class WebSocketPool extends Pool
 
     protected $port;
 
+    protected $tasks;
+
     public function __construct($ip, $port)
     {
         $this->poolQueue = new splQueue();
@@ -107,43 +109,81 @@ class WebSocketPool extends Pool
             return;
         }
 
+        $key = spl_object_hash($resource);
+        unset($this->tasks[$key]);
+
+        $task = $this->taskQueue->dequeue();
+
+        $callback = $task['callback'];
         //如果已经与服务器断开连接了
         if ($resource->statusCode < 0) {
-            $this->release($resource);
+            $this->remove($resource);
             call_user_func_array($callback, array('response' => false, 'error' => 'errorCode:'.$resource->statusCode));
             return;
         }
 
-        $task = $this->taskQueue->dequeue();
-        $callback = $task['callback'];
-        $resource->on("message", function ($cli, $frame) use ($callback, $resource) {
-            $this->release($resource);
-            call_user_func_array($callback, array('response' => $frame, 'error' => null));
+        $this->tasks[$key]['isFinish'] = false;
+        $this->tasks[$key]['timeId'] = swoole_timer_after(floatval($this->timeout) * 1000, function () use ($callback, $resource, $key) {
+            if (!$this->tasks[$key]['isFinish']) {
+                $this->tasks[$key]['isFinish'] = true;
+                $this->release($resource);
+                call_user_func_array($callback, array('response' => false, 'error' => 'on message timeout'));
+             }
+        });
+
+        $resource->on("message", function ($cli, $frame) use ($callback, $resource, $key) {
+            if (!$this->tasks[$key]['isFinish']) {
+                $this->tasks[$key]['isFinish'] = true;
+                $this->clearTimer($key);
+                $this->release($resource);
+                call_user_func_array($callback, array('response' => $frame, 'error' => null));
+            }
         });
 
         $data = $task['data'];
         if ($resource->statusCode == 101) {
             $status = $resource->push($data);
             if ($status === false) {
-                $this->release($resource);
-                call_user_func_array($callback, array('response' => false, 'error' => 'fail'));
-                return;
-            }
-        } else {
-            $resource->upgrade('/', function ($cli) use ($callback, $resource, $data) {
-                //连不上服务器
-                if ($cli->statusCode < 0) {
-                    $this->release($resource);
-                    call_user_func_array($callback, array('response' => false, 'error' => 'errorCode:'.$cli->statusCode));
-                    return;
-                }
-                $status = $resource->push($data);
-                if ($status === false) {
+                if (!$this->tasks[$key]['isFinish']) {
+                    $this->tasks[$key]['isFinish'] = true;
+                    $this->clearTimer($key);
                     $this->release($resource);
                     call_user_func_array($callback, array('response' => false, 'error' => 'push data fail'));
                     return;
                 }
+            }
+        } else {
+            $resource->upgrade('/', function ($cli) use ($callback, $resource, $data, $key) {
+                //连不上服务器
+                if ($cli->statusCode < 0) {
+                    if (!$this->tasks[$key]['isFinish']) {
+                        $this->tasks[$key]['isFinish'] = true;
+                        $this->clearTimer($key);
+                        $this->remove($resource);
+
+                        call_user_func_array($callback, array('response' => false, 'error' => 'errorCode:'.$cli->statusCode));
+                        return;
+                    }
+                }
+
+                $status = $resource->push($data);
+                if ($status === false) {
+                    if (!$this->tasks[$key]['isFinish']) {
+                        $this->tasks[$key]['isFinish'] = true;
+                        $this->clearTimer($key);
+                        $this->release($resource);
+                        call_user_func_array($callback, array('response' => false, 'error' => 'push data fail'));
+                        return;
+                    }
+                }
             });
+        }
+    }
+
+    private function clearTimer($key)
+    {
+        if (isset($this->tasks[$key]['timeId'])) {
+            swoole_timer_clear($this->tasks[$key]['timeId']);
         }
     }
 
