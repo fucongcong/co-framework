@@ -58,6 +58,7 @@ class App
         'AsyncService'      => 'Group\Async\AsyncService',
         'AsyncTcp'          => 'Group\Async\AsyncTcp',
         'AsyncHttp'         => 'Group\Async\AsyncHttp',
+        'AsyncWebSocket'    => 'Group\Async\AsyncWebSocket',
     ];
 
     /**
@@ -289,6 +290,13 @@ class App
                 $this->singleton($resource)->close();
             }
         }
+
+        $resources = StaticCache::get('wsPool', []);
+        foreach ($resources as $resource) {
+            if (!is_null($this->singleton($resource))) {
+                $this->singleton($resource)->close();
+            }
+        }
     }
 
     /**
@@ -318,7 +326,7 @@ class App
     public function setServiceProviders()
     {
         $onWorkStartServices = Config::get('app::onWorkStartServices');
-        $this->onWorkStartServices = array_merge($onWorkStartServices, $this->onWorkStartServices);
+        $this->onWorkStartServices = array_merge($this->onWorkStartServices, $onWorkStartServices);
 
         $onRequestServices = Config::get('app::onRequestServices');
         $this->onRequestServices = array_merge($onRequestServices, $this->onRequestServices);

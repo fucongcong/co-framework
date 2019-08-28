@@ -62,6 +62,7 @@ class MysqlPool extends Pool
                     $this->put($mysql);
                 } else {
                     $this->ableCount--;
+                    echo 'MysqlPool连接池初始化失败，无法连接:'.$this->config['host'].':'.$this->config['port'].PHP_EOL;
                 }
             });
             $this->ableCount++;
@@ -85,13 +86,29 @@ class MysqlPool extends Pool
             return;
         }
 
+        $task = $this->taskQueue->dequeue();
+        $methd = $task['methd'];
+        $callback = $task['callback'];
+
         //mysql连接超时了
         if ($resource->connected === false) {
-            $this->remove($resource);
+            //重连一下
+            $resource->connect($this->config, function(swoole_mysql $mysql, $res) use ($task) {
+                if ($res === false) {
+                    call_user_func_array($task['callback'], array('response' => false, 'error' => "connect to mysql server failed", 'calltime' => 0));
+                    return;
+                }
+
+                $this->execute($mysql, $task);
+            });
             return;
         }
 
-        $task = $this->taskQueue->dequeue();
+        $this->execute($resource, $task);
+    }
+
+    private function execute($resource, $task)
+    {   
         $methd = $task['methd'];
         $callback = $task['callback'];
         $resource->$methd($task['parameters'], function(swoole_mysql $mysql, $res) use ($callback) {
