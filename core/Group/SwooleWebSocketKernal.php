@@ -22,7 +22,7 @@ class SwooleWebSocketKernal
 
         $host = "127.0.0.1";
         $port = 9527;
-        $setting = Config::get('app::setting');
+        $setting = Config::get('app::ws.setting');
 
         $this->ws = new swoole_websocket_server($host, $port);
         $this->ws->set($setting);
