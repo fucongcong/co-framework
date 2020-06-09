@@ -19,7 +19,7 @@ return [
     'onWorkStartServices' => [
         'Group\Async\Pool\MysqlPoolServiceProvider',
         'Group\Async\Pool\RedisPoolServiceProvider',
-        //'Group\Async\Pool\WebSocketPoolServiceProvider',
+        'Group\Async\Pool\WebSocketPoolServiceProvider',
     ],
 
     'onRequestServices' => [

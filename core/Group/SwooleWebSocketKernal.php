@@ -156,13 +156,17 @@ class SwooleWebSocketKernal
         }
         $data = json_decode($frame->data, true);
         if ($data) {
-            if ($serv->isEstablished($data['toFd'])) {
-                $status = $serv->push($data['toFd'], $data['msg']);
+            if (isset($data['toFd'])) {
+                if ($serv->isEstablished($data['toFd'])) {
+                    $status = $serv->push($data['toFd'], $data['msg']);
+                } else {
+                    $status = false;
+                }
+                
+                $serv->push($frame->fd, json_encode(['s' => $status]));
             } else {
-                $status = false;
+                $serv->push($frame->fd, $frame->data);
             }
-            
-            $serv->push($frame->fd, json_encode(['s' => $status]));
         }
     }
 
