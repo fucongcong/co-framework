@@ -65,7 +65,7 @@ return
 
             "user" => "root",
 
-            "password" => "123",
+            "password" => "",
 
             "charset" => "utf8",
         ],

@@ -37,7 +37,7 @@ return [
             'serv' => '0.0.0.0',
             'port' => 9518,
             'config' => [
-                'daemonize' => true,        
+                //'daemonize' => true,        
                 'worker_num' => 20,
                 'max_request' => 500,
                 'task_worker_num' => 30,
@@ -53,7 +53,7 @@ return [
             'port' => 9519,
             //server配置，请根据实际情况调整参数
             'config' => [
-                'daemonize' => true,
+                //'daemonize' => true,
                 //worker进程数量         
                 'worker_num' => 20,
                 //最大请求数，超过后讲重启worker进程

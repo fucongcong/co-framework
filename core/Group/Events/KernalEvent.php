@@ -19,4 +19,6 @@ final class KernalEvent extends \Event
     const SERVICE_CALL = "kernal.service_call";
 
     const SERVICE_FAIL = "kernal.service_fail";
+
+    const SERVICE_ERROR = "kernal.service_error";
 }

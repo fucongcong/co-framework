@@ -3,6 +3,8 @@
 namespace Group\Protocol;
 
 use Config;
+use Group\Protocol\Request;
+use Group\Protocol\Response;
 
 class DataPack 
 {   
@@ -10,13 +12,13 @@ class DataPack
      * 打包方式
      * @var boolean|string [serialize|json]
      */
-    protected static $pack = false;
+    protected static $pack;
 
     /**
      * 是否启用gzip
      * @var boolean
      */
-    protected static $gzip = false;
+    protected static $gzip;
 
     /**
      * @param  array $data 需要打包的数据
@@ -68,17 +70,24 @@ class DataPack
         }
     }
 
+    public static function getPackType()
+    {   
+        self::checkConfig();
+        return self::$pack;
+    }
+
+    public static function getGzip()
+    {   
+        self::checkConfig();
+        return self::$gzip;
+    }
+
     /**
      * 检查当前的打包方式
      */
     public static function checkConfig()
     {
-        if (!self::$pack) {
-            self::$pack = Config::get("app::pack");
-        }
-
-        if (!self::$gzip) {
-            self::$gzip = Config::get("app::gzip");
-        }
+        self::$pack = Config::get("app::pack");
+        self::$gzip = (bool) Config::get("app::gzip");
     }
 }

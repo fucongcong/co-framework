@@ -5,7 +5,8 @@ namespace Group\Async;
 use Group\Protocol\Client;
 use Group\Events\KernalEvent;
 use Group\Protocol\DataPack;
-use Group\Protocol\ServiceProtocol as Protocol;
+use Group\Protocol\ServiceReqProtocol;
+use Group\Protocol\ServiceResProtocol;
 use Group\Async\Pool\TcpPool;
 use Group\Async\Pool\TcpProxy;
 use Event;
@@ -83,7 +84,7 @@ class AsyncService
                 $cmd = $this->service."\\".$cmd;
             }
         }
-        $data = Protocol::pack($cmd, $data);
+        $data = ServiceReqProtocol::pack($cmd, $data);
 
         //初始化客户端
         if ($this->usePool) {
@@ -121,14 +122,23 @@ class AsyncService
         }
 
         if ($res && $res['response']) {
-            list($cmd, $data) = Protocol::unpack($res['response']);
-            $res['response'] = $data;
+            $response = ServiceResProtocol::unpack($res['response']);
+
+            if ($response->getCode() != 200) {
+                //抛一个连接失败事件出去
+                yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_FAIL, 
+                    new Event(['cmd' => $cmd, 'service' => $this->service, 'ip' => $this->serv,
+                     'port' => $this->port, 'container' => $container, 'response' => $response
+                ]));
+            }
+
+            $res['response'] = $response->getData();
             yield $res['response'];
         }
 
         if ($res['error']) {
             //抛一个连接失败事件出去
-            yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_FAIL, 
+            yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_ERROR, 
                 new Event(['cmd' => $cmd, 'service' => $this->service, 'ip' => $this->serv,
                  'port' => $this->port, 'container' => $container
             ]));

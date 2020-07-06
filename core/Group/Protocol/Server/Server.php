@@ -5,7 +5,8 @@ namespace Group\Protocol\Server;
 use Group\Common\ArrayToolkit;
 use Group\Exceptions\NotFoundException;
 use Group\Common\ClassMap;
-use Group\Protocol\ServiceProtocol as Protocol;
+use Group\Protocol\ServiceReqProtocol;
+use Group\Protocol\ServiceResProtocol;
 use Group\Protocol\DataPack;
 use Group\Config\Config;
 use Group\Registry;
@@ -13,6 +14,7 @@ use swoole_table;
 use swoole_process;
 use swoole_server;
 use Log;
+use Exception;
 
 class Server 
 {   
@@ -232,16 +234,20 @@ class Server
     public function onReceive(swoole_server $serv, $fd, $fromId, $data)
     {
         $data = $this->parse($data);
+
         if ($this->debug) {
             echo "Receive Data: {$data}".PHP_EOL;
         }
         try {
             $config = $this->config;
 
-            list($cmd, $data) = Protocol::unpack($data);
+            $request = ServiceReqProtocol::unpack($data);
+            $cmd = $request->getCmd();
+            $data = $request->getData();
+
             switch ($cmd) {
                 case 'ping':
-                    $this->sendData($serv, $fd, 1);
+                    $this->sendData($serv, $fd, 'pong');
                     return;
                 case 'close':
                     $this->sendData($serv, $fd, 1);
@@ -310,6 +316,8 @@ class Server
                 'trace'   => $e->getTraceAsString(),
                 'type'    => $e->getCode(),
             ]);
+
+            return ['fd' => $server['fd'], 'errMsg' => $e->getMessage()];
         }
     }
 
@@ -324,6 +332,11 @@ class Server
     {
         try {
             $forFd = $data['fd'];
+
+            if (isset($data['errMsg'])) {
+                $this->sendErrData($serv, $forFd, $data['errMsg']);
+                return;
+            }
 
             if (isset($data['data']['tasks'])) {
                 //是不是内部的task任务
@@ -411,8 +424,23 @@ class Server
             //如果这个时候客户端还连接者的话说明需要返回返回的信息,
             //如果客户端已经关闭了的话说明不需要server返回数据
             //判断下data的类型
-            $data = Protocol::pack("", $data);
+            $data = ServiceResProtocol::pack(200, $data);
             //$data = DataPack::pack(['cmd' => '', 'data' => $data]);
+            $serv->send($fd, $data);
+        }
+    }
+
+    /**
+     * 向客户端发送数据
+     * @param  swoole_server
+     * @param  swoole_server $serv
+     * @param  string $data
+     */
+    private function sendErrData(swoole_server $serv, $fd, $errMsg)
+    {   
+        $fdinfo = $serv->connection_info($fd);
+        if($fdinfo){
+            $data = ServiceResProtocol::pack(500, false, $errMsg);
             $serv->send($fd, $data);
         }
     }
@@ -431,7 +459,7 @@ class Server
      * @return array
      */
     private function doAction($cmd, array $parameters, $server)
-    {   
+    {
         list($class, $action) = explode("::", $cmd);
         list($group, $class) = explode("\\", $class);
         $service = "src\\Service\\$group\\Service\\Impl\\{$class}ServiceImpl";
@@ -447,13 +475,32 @@ class Server
 
         $instanc = $reflector->newInstanceArgs($server);
         $method = $reflector->getmethod($action);
-        $args = [];
-        foreach ($method->getParameters() as $arg) {
-            $paramName = $arg ->getName();
-            if (isset($parameters[$paramName])) $args[$paramName] = $parameters[$paramName];
+
+        if (!$method->isPublic()) {
+            throw new Exception("Service $service found ! But the Action ".$action." is not public");
         }
 
-        return ['data' => $method->invokeArgs($instanc, $args), 'fd' => $server['fd'], 'callId' => $server['callId']];
+        $args = [];
+        foreach ($method->getParameters() as $arg) {
+            $paramName = $arg->getName();
+            $reqClass = $arg->getClass();
+            if (isset($parameters[$paramName])) {
+                $args[$paramName] = $parameters[$paramName];
+            } else if (!empty($reqClass) && $reqClass->isSubclassOf('Google\Protobuf\Internal\Message')) {
+                $args[$paramName] = $reqClass->newInstanceArgs([
+                    'data' => $parameters
+                ]);
+            } else {
+                throw new Exception("The Action ".$action." parameter {$paramName} not found");
+            }
+        }
+
+        $data = $method->invokeArgs($instanc, $args);
+        if (is_object($data) && $data instanceof \Google\Protobuf\Internal\Message) {
+            $data = $data->serializeToString();
+        }
+
+        return ['data' => $data, 'fd' => $server['fd'], 'callId' => $server['callId']];
     }
 
     /**

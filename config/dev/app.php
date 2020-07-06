@@ -96,7 +96,7 @@ return [
     'maxPool' => 5,
 
     //此参数可不填。通信协议 eof：结束符, buf：包头+包体。也可以填自定义的customProtocols
-    'protocol' => 'buf',
+    'protocol' => 'eof',
     //包体的打包方式json,serialize
     'pack' => 'json',
     //是否启用gzip压缩true,false

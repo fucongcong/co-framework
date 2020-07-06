@@ -10,6 +10,8 @@
         ],
         "psr-4": {
             "Group\\": "core/Group/",
+            "Service\\": "src/Service",
+            "GPBMetadata\\": "src/GPBMetadata",
             "src\\": "src/"
         }
     },
@@ -32,6 +34,7 @@
         "firebase/php-jwt": "5.0.0",
         "symfony/var-dumper": "~3.3.5",
         "facile-it/doctrine-mysql-come-back": "^1.6",
+        "google/protobuf": "^v3.3.0",
         "symfony/yaml": "^3.4"
     }
 }

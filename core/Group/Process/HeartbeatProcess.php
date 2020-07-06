@@ -4,8 +4,6 @@ namespace Group\Process;
 
 use swoole_process;
 use Group\Process;
-use Group\Protocol\ServiceProtocol as Protocol;
-use Group\Protocol\Client\Tcp;
 use Group\Config\Config;
 use Redis;
 

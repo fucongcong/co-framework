@@ -4,7 +4,7 @@ namespace Group\Process;
 
 use swoole_process;
 use Group\Process;
-use Group\Protocol\ServiceProtocol as Protocol;
+use Group\Protocol\ServiceReqProtocol;
 use Group\Protocol\Client\Tcp;
 use Group\Config\Config;
 use Group\Sync\Dao\Dao;
@@ -40,7 +40,7 @@ class MysqlHeartbeatProcess extends Process
                     list($ip, $port) = explode(":", $service['address']);
                     $client = new Tcp($ip, $port);
                     $client->setTimeout(5);
-                    $client->setData(Protocol::pack('ping'));
+                    $client->setData(ServiceReqProtocol::pack('ping'));
                     $client->call(function($response, $error, $calltime) use ($service) {
                         //服务挂了，或者异常了
                         if (!$response) {
