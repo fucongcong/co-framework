@@ -39,6 +39,11 @@ class KernalInitListener extends \Listener
                 'listener'  => 'Group\Listeners\ServiceFailListener',
                 'priority'  => 0,
             ],
+            [
+                'eventName' => KernalEvent::SERVICE_ERROR,
+                'listener'  => 'Group\Listeners\ServiceErrorListener',
+                'priority'  => 0,
+            ],
         ];
 
         $listeners = array_merge(\Config::get('listener::services'), $listeners);

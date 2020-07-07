@@ -126,7 +126,7 @@ class AsyncService
 
             if ($response->getCode() != 200) {
                 //抛一个连接失败事件出去
-                yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_FAIL, 
+                yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_ERROR, 
                     new Event(['cmd' => $cmd, 'service' => $this->service, 'ip' => $this->serv,
                      'port' => $this->port, 'container' => $container, 'response' => $response
                 ]));
@@ -138,7 +138,7 @@ class AsyncService
 
         if ($res['error']) {
             //抛一个连接失败事件出去
-            yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_ERROR, 
+            yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_FAIL, 
                 new Event(['cmd' => $cmd, 'service' => $this->service, 'ip' => $this->serv,
                  'port' => $this->port, 'container' => $container
             ]));

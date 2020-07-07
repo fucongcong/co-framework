@@ -34,9 +34,8 @@ class GenerateServiceCommand extends Command
         $dir = __ROOT__."src/Service/".$group;
 
         $this->outPut('正在生成目录...');
-
-        if (is_dir($dir."/".$serviceName)) {
-            $this->error('目录已存在...初始化失败');
+        if (file_exists($dir."/Service/".$serviceName."ServiceImpl.php")) {
+            $this->error($serviceName.'Service已存在...初始化失败');
         }
 
         $filesystem = new Filesystem();
@@ -46,6 +45,12 @@ class GenerateServiceCommand extends Command
         $filesystem->mkdir($dir."/Service/Rely");
 
         $this->outPut('开始创建模板...');
+        $data = $this->getFile("README.tpl", $serviceName, $group);
+        file_put_contents (__ROOT__."src/Api/".$group."/README", $data);
+
+        $data = $this->getFile("proto.tpl", $serviceName, $group);
+        file_put_contents (__ROOT__."src/Api/".$group."/".strtolower($serviceName).".proto", $data);
+
         $data = $this->getFile("Service.tpl", $serviceName, $group);
         file_put_contents (__ROOT__."src/Api/".$group."/".$serviceName."Service.php", $data);
 
