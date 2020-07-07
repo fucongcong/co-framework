@@ -24,17 +24,17 @@ class Response extends Message implements JsonSerializable
      */
     protected $errMsg = '';
 
-    public function setCode(int $code) :void
+    public function setCode(int $code) : void
     {
         $this->code = $code;
     }
 
-    public function getCode() :int
+    public function getCode() : int
     {
         return $this->code;
     }
 
-    public function setData($data) :void
+    public function setData($data) : void
     {
         $this->data = $data;
     }
@@ -44,12 +44,12 @@ class Response extends Message implements JsonSerializable
         return $this->data;
     }
 
-    public function setErrMsg(string $errMsg) :void
+    public function setErrMsg(string $errMsg) : void
     {
         $this->errMsg = $errMsg;
     }
 
-    public function getErrMsg() :string
+    public function getErrMsg() : string
     {
         return $this->errMsg;
     }

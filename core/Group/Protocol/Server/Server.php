@@ -458,11 +458,11 @@ class Server
      *  ]
      * @return array
      */
-    private function doAction($cmd, array $parameters, $server)
+    private function doAction($cmd, $parameters, $server)
     {
         list($class, $action) = explode("::", $cmd);
         list($group, $class) = explode("\\", $class);
-        $service = "src\\Service\\$group\\Service\\Impl\\{$class}ServiceImpl";
+        $service = "src\\Service\\$group\\Service\\{$class}ServiceImpl";
         if (!class_exists($service)) {
             throw new NotFoundException("Service $service not found !");
         }
@@ -484,14 +484,23 @@ class Server
         foreach ($method->getParameters() as $arg) {
             $paramName = $arg->getName();
             $reqClass = $arg->getClass();
-            if (isset($parameters[$paramName])) {
-                $args[$paramName] = $parameters[$paramName];
-            } else if (!empty($reqClass) && $reqClass->isSubclassOf('Google\Protobuf\Internal\Message')) {
-                $args[$paramName] = $reqClass->newInstanceArgs([
-                    'data' => $parameters
-                ]);
+            if (is_string($parameters)) {
+                if (!empty($reqClass) && $reqClass->isSubclassOf('Google\Protobuf\Internal\Message')) {
+                    $args[$paramName] = $reqClass->newInstance();
+                    $args[$paramName]->mergeFromString($parameters);
+                } else {
+                    throw new Exception("The Action ".$action." parameter need a object instanceof \Google\Protobuf\Internal\Message");
+                }
             } else {
-                throw new Exception("The Action ".$action." parameter {$paramName} not found");
+                if (isset($parameters[$paramName])) {
+                    $args[$paramName] = $parameters[$paramName];
+                } else if (!empty($reqClass) && $reqClass->isSubclassOf('Google\Protobuf\Internal\Message')) {
+                    $args[$paramName] = $reqClass->newInstanceArgs([
+                        'data' => $parameters
+                    ]);
+                } else {
+                    throw new Exception("The Action ".$action." parameter {$paramName} not found");
+                }
             }
         }
 

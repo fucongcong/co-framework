@@ -27,7 +27,7 @@ class ServiceReqProtocol
      * @param  array $data 需要打包的数据
      * @return string 
      */
-    public static function pack(string $cmd = '', array $data = []) : string
+    public static function pack(string $cmd = '', $data = []) : string
     {   
         if (!self::$protocol) {
             self::$protocol = Config::get("app::protocol");

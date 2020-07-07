@@ -98,7 +98,7 @@ class Service
     {
         list($group, $serviceName) = explode(":", $serviceName);
         $class = $serviceName."ServiceImpl";
-        $serviceName = "src\\Service\\$group\\Service\\Impl\\$class";;
+        $serviceName = "src\\Service\\$group\\Service\\$class";;
 
         return app()->singleton(strtolower($serviceName), function() use ($serviceName) {
             return new $serviceName($this->serv, $this->fd, $this->jobId, $this->fromId);

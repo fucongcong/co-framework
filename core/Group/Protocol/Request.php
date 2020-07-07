@@ -14,26 +14,30 @@ class Request extends Message implements JsonSerializable
 
     /**
      * data 请求的body数据
-     * @var array
+     * @var array or object
      */
     protected $data = [];
 
-    public function setCmd(string $cmd) :void
+    public function setCmd(string $cmd) : void
     {
         $this->cmd = $cmd;
     }
 
-    public function getCmd() :string
+    public function getCmd() : string
     {
         return $this->cmd;
     }
 
-    public function setData(array $data) :void
-    {
+    public function setData($data) : void
+    {   
+        if ($data instanceof \Google\Protobuf\Internal\Message) {
+            $data = $data->serializeToString();
+        }
+
         $this->data = $data;
     }
 
-    public function getData() :array
+    public function getData()
     {
         return $this->data;
     }

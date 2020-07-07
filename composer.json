@@ -10,7 +10,7 @@
         ],
         "psr-4": {
             "Group\\": "core/Group/",
-            "Service\\": "src/Service",
+            "Api\\": "src/Api",
             "GPBMetadata\\": "src/GPBMetadata",
             "src\\": "src/"
         }

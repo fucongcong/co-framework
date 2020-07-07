@@ -10,7 +10,7 @@ class ChunkSet
             case 'buf':
                 return substr($data, 4);
             case 'eof':
-                $data = explode($this->setting['package_eof'], $data);
+                $data = explode("\r\n", $data);
                 return $data[0];
             default:
                 return $data;

@@ -24,7 +24,7 @@ class GenerateServiceCommand extends Command
             $name = $input[0];
         }
 
-        if (!preg_match('/^[a-zA-Z\s]+$/', $name)) {
+        if (!preg_match('/^[a-zA-Z0-9\s]+$/', $name)) {
             $this->error("名称只能为英文！");
         }
 
@@ -40,17 +40,17 @@ class GenerateServiceCommand extends Command
         }
 
         $filesystem = new Filesystem();
+        $filesystem->mkdir(__ROOT__."src/Api/".$group);
         $filesystem->mkdir($dir."");
         $filesystem->mkdir($dir."/Dao/Impl");
-        $filesystem->mkdir($dir."/Service/Impl");
         $filesystem->mkdir($dir."/Service/Rely");
 
         $this->outPut('开始创建模板...');
         $data = $this->getFile("Service.tpl", $serviceName, $group);
-        file_put_contents ($dir."/Service/".$serviceName."Service.php", $data);
+        file_put_contents (__ROOT__."src/Api/".$group."/".$serviceName."Service.php", $data);
 
         $data = $this->getFile("ServiceImpl.tpl", $serviceName, $group);
-        file_put_contents ($dir."/Service/Impl/".$serviceName."ServiceImpl.php", $data);
+        file_put_contents ($dir."/Service/".$serviceName."ServiceImpl.php", $data);
 
         $data = $this->getFile("BaseService.tpl", $serviceName, $group);
         file_put_contents ($dir."/Service/Rely/".$serviceName."BaseService.php", $data);
