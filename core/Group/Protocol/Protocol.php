@@ -29,16 +29,20 @@ class Protocol
             self::$protocol = Config::get("app::protocol");
         }
 
+        if ($data != "ping") {
+            $data = DataPack::pack($data);
+        }
+
         switch (self::$protocol) {
             case 'buf':
-                $body = pack("a*", DataPack::pack($data));
+                $body = pack("a*", $data);
                 $bodyLen = strlen($body);
                 $head = pack("N", $bodyLen);
                 return $head . $body;
             case 'eof':
-                return DataPack::pack($data).self::$packageEof;
+                return $data.self::$packageEof;
             default:
-                return DataPack::pack($data);
+                return $data;
         }
     }
 

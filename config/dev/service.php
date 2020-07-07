@@ -33,6 +33,26 @@ return [
 
     //配置service
     'server' => [
+        'monitor' => [
+            'serv' => '0.0.0.0',
+            'port' => 9520,
+            'config' => [
+                //'daemonize' => true,        
+                'worker_num' => 20,
+                'max_request' => 500,
+                'task_worker_num' => 30,
+                'task_max_request' => 500,
+                'heartbeat_idle_time' => 300,
+                'heartbeat_check_interval' => 60,
+                'dispatch_mode' => 3,
+                'log_file' => 'runtime/service/node_center.log',
+            ],
+            'public' => '',
+            'process' => [
+                //你可以使用框架封装的心跳检测进程
+                'Group\Process\HeartbeatProcess',
+            ],
+        ],
         'test' => [
             'serv' => '0.0.0.0',
             'port' => 9518,
@@ -53,7 +73,7 @@ return [
             'port' => 9519,
             //server配置，请根据实际情况调整参数
             'config' => [
-                //'daemonize' => true,
+                'daemonize' => true,
                 //worker进程数量         
                 'worker_num' => 20,
                 //最大请求数，超过后讲重启worker进程

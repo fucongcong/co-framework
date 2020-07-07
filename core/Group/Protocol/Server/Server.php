@@ -7,7 +7,7 @@ use Group\Exceptions\NotFoundException;
 use Group\Common\ClassMap;
 use Group\Protocol\ServiceReqProtocol;
 use Group\Protocol\ServiceResProtocol;
-use Group\Protocol\DataPack;
+use Group\Protocol\Protocol;
 use Group\Config\Config;
 use Group\Registry;
 use swoole_table;
@@ -238,17 +238,18 @@ class Server
         if ($this->debug) {
             echo "Receive Data: {$data}".PHP_EOL;
         }
+
+        if ($data == 'ping') {
+            $serv->send($fd, Protocol::pack('pong'));
+            return;
+        }
+
         try {
             $config = $this->config;
 
             $request = ServiceReqProtocol::unpack($data);
             $cmd = $request->getCmd();
-            $data = $request->getData();
-
             switch ($cmd) {
-                case 'ping':
-                    $this->sendData($serv, $fd, 'pong');
-                    return;
                 case 'close':
                     $this->sendData($serv, $fd, 1);
                     $serv->shutdown();
@@ -258,7 +259,7 @@ class Server
                     $serv->reload();
                     break;
                 default:
-                    $serv->task(['cmd' => $cmd, 'data' => $data, 'fd' => $fd]);
+                    $serv->task(['cmd' => $cmd, 'data' => $request->getData(), 'fd' => $fd]);
                     break;
             }
         } catch (\Exception $e) {
@@ -459,7 +460,11 @@ class Server
      * @return array
      */
     private function doAction($cmd, $parameters, $server)
-    {
+    {   
+        if (empty($cmd)) {
+            throw new NotFoundException("cmd error !");
+        }
+
         list($class, $action) = explode("::", $cmd);
         list($group, $class) = explode("\\", $class);
         $service = "src\\Service\\$group\\Service\\{$class}ServiceImpl";
