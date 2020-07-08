@@ -30,7 +30,7 @@ class Request extends Message implements JsonSerializable
 
     public function setData($data) : void
     {   
-        if ($data instanceof \Google\Protobuf\Internal\Message) {
+        if (is_object($data) && $data instanceof \Google\Protobuf\Internal\Message) {
             $data = $data->serializeToString();
         }
 
