@@ -27,14 +27,18 @@ class ServiceReqProtocol
      * @param  array $data 需要打包的数据
      * @return string 
      */
-    public static function pack(string $cmd = '', $data = []) : string
+    public static function pack($cmd = '', $data = []) : string
     {   
         if (!self::$protocol) {
             self::$protocol = Config::get("app::protocol");
         }
 
         $req = new Request();
-        $req->setCmd($cmd);
+        if (is_string($cmd)) {
+            $req->setCmd($cmd);
+        } else {
+            $req->setCmds($cmd);
+        }
         $req->setData($data);
         $req->setType(Config::get("app::pack", 'json'));
         $req->setGzip((bool) Config::get("app::gzip", false));
@@ -63,6 +67,7 @@ class ServiceReqProtocol
         $request = $decoder->decode();
         $req = new Request;
         $req->setCmd($request['cmd'] ?? '');
+        $req->setCmds($request['cmds'] ?? []);
         $req->setType($request['type'] ?? 'json');
         $req->setData($request['data'] ?? []);
         

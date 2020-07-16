@@ -37,7 +37,7 @@ class SyncApp
         'Dao'               => 'Group\Sync\Dao\Dao',
         'Filesystem'        => 'Group\Common\Filesystem',
         'FileCache'         => 'Group\Sync\Cache\FileCache',
-        'StaticCache'       => 'Group\Sync\Cache\StaticCache',
+        'StaticCache'       => 'Group\Cache\StaticCache',
         'Service'           => 'Group\Sync\Services\Service',
         'ServiceProvider'   => 'Group\Sync\Services\ServiceProvider',
         'Test'              => 'Group\Test\Test',

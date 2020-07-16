@@ -8,9 +8,15 @@ class Request extends Message implements JsonSerializable
 {   
     /**
      * cmd命令
-     * @var string
+     * @var string like User/User/getUser  User模块的UserService的getUser方法
      */
     protected $cmd;
+
+    /**
+     * 多个cmd命令
+     * @var array
+     */
+    protected $cmds = [];
 
     /**
      * data 请求的body数据
@@ -28,8 +34,18 @@ class Request extends Message implements JsonSerializable
         return $this->cmd;
     }
 
+    public function setCmds(array $cmds) : void
+    {
+        $this->cmds = $cmds;
+    }
+
+    public function getCmds() : array
+    {
+        return $this->cmds;
+    }
+
     public function setData($data) : void
-    {   
+    {
         if (is_object($data) && $data instanceof \Google\Protobuf\Internal\Message) {
             $data = $data->serializeToString();
         }
@@ -46,6 +62,7 @@ class Request extends Message implements JsonSerializable
     {
         return [
             'cmd' => $this->cmd,
+            'cmds' => $this->cmds,
             'data' => $this->data,
             'type' => $this->type,
             'gzip' => $this->gzip,

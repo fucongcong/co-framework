@@ -23,7 +23,7 @@ class RedisRegistryProcess extends RegistryProcess
      * 初始化函数
      * @param array $config
      */
-    public function __construct($config)
+    public function __construct(array $config, array $services = [])
     {   
         $this->config = $config;
         $this->host = $config['host'];
@@ -34,6 +34,8 @@ class RedisRegistryProcess extends RegistryProcess
             $this->redis->auth($config['auth']);
         }
         $this->redis->setOption(Redis::OPT_PREFIX, isset($config['prefix']) ? $config['prefix'] : '');
+
+        $this->services = $services;
     }
 
     /**
@@ -43,7 +45,7 @@ class RedisRegistryProcess extends RegistryProcess
     public function subscribe()
     {   
         $this->redis->setOption(Redis::OPT_READ_TIMEOUT, -1);
-        $services = Config::get("app::services");
+        $services = $this->services;
         $server = $this->server;
         $redis = $this->redis;
         $process = new swoole_process(function($process) use ($server, $redis, $services) {
@@ -80,8 +82,7 @@ class RedisRegistryProcess extends RegistryProcess
      */
     public function unSubscribe()
     {
-        $services = Config::get("app::services");
-        foreach ($services as $service) {
+        foreach ($this->services as $service) {
             $this->redis->sRem('Consumers:'.$service, Config::get("app::ip", getLocalIp()).":".Config::get("app::port"));
         }
     }
@@ -91,7 +92,7 @@ class RedisRegistryProcess extends RegistryProcess
      * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
      * @return boolean
      */
-    public function register($services)
+    public function register(array $services)
     {   
         //确保所有服务全部注册成功，可以用事务
         foreach ($services as $service => $url) {
@@ -109,7 +110,7 @@ class RedisRegistryProcess extends RegistryProcess
      * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
      * @return boolean
      */
-    public function unRegister($services)
+    public function unRegister(array $services)
     {
         foreach ($services as $service => $url) {
             $status = $this->redis->sRem('Providers:'.$service, $url);
@@ -124,8 +125,7 @@ class RedisRegistryProcess extends RegistryProcess
      */
     public function getList()
     {
-        $services = Config::get("app::services");
-        foreach ($services as $service) {
+        foreach ($this->services as $service) {
             $addresses = $this->redis->sMembers('Providers:'.$service);
             StaticCache::set("ServiceList:".$service, $addresses, false);
 

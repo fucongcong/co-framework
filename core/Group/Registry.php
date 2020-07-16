@@ -7,6 +7,7 @@ use StaticCache;
 
 class Registry
 {   
+    protected $relys = [];
     /**
      * 获取服务中心适配器
      */
@@ -30,7 +31,7 @@ class Registry
             return false;
         }
 
-        return new $registry($address);
+        return new $registry($address, $this->relys);
     }
 
     /**
@@ -63,6 +64,14 @@ class Registry
         if (!$registry) return;
         $registry->getList();
         unset($registry);
+    }
+
+    /**
+     * 设置依赖的服务
+     */
+    public function setRelyService(array $services)
+    {
+        $this->relys = $services;
     }
 
     /**

@@ -63,7 +63,10 @@ return [
     'process' => [
     ],
 
-    //===============================websocket config==========================
+    //api服务依赖的基础服务模块 
+    'services' => ["User", "Order", "Monitor", "NodeCenter"],
+
+    //===============================websocket config start==========================
     //单机配置
     'ws.serv' => '127.0.0.1',
     'ws.port' => '9527',
@@ -83,11 +86,9 @@ return [
         'heartbeat_check_interval' => 10,
         'dispatch_mode' => 1, 
     ],
-    //===============================websocket config==========================
+    //===============================websocket config end==========================
 
-    //
-    //依赖的服务模块 
-    'services' => ["User", "Order", "Monitor", "NodeCenter"],
+
     //服务调用失败次数，超出后进行故障切换
     'retries' => 3,
     //异步rpc方法调用超时时间

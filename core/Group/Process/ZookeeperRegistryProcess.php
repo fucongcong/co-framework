@@ -29,7 +29,7 @@ class ZookeeperRegistryProcess extends RegistryProcess
 
     public $url;
 
-    public function __construct($config)
+    public function __construct(array $config, array $services = [])
     {
         $this->host = $config['host'];
         $this->port = $config['port'];
@@ -41,6 +41,7 @@ class ZookeeperRegistryProcess extends RegistryProcess
         }
         
         $this->zk = new ZookeeperApi($this->url);
+        $this->services = $services;
     }
 
     /**
@@ -49,7 +50,7 @@ class ZookeeperRegistryProcess extends RegistryProcess
      */
     public function subscribe()
     {   
-        $services = Config::get("app::services");
+        $services = $this->services;
         $server = $this->server;
         $this->registry = new Registry;
         foreach ($services as $service) {
@@ -87,8 +88,7 @@ class ZookeeperRegistryProcess extends RegistryProcess
      */
     public function unSubscribe()
     {
-        $services = Config::get("app::services");
-        foreach ($services as $service) {
+        foreach ($this->services as $service) {
             try {
                 $this->zk->deleteNode("/GroupCo/{$service}/Consumers/".Config::get("app::ip", getLocalIp()).":".Config::get("app::port"));
             } catch (Exception $e) {
@@ -105,7 +105,7 @@ class ZookeeperRegistryProcess extends RegistryProcess
      * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
      * @return boolean
      */
-    public function register($services)
+    public function register(array $services)
     {   
         foreach ($services as $service => $url) {
             $this->zk->set("/GroupCo/{$service}/Providers/".$url, '');
@@ -122,7 +122,7 @@ class ZookeeperRegistryProcess extends RegistryProcess
      * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
      * @return boolean
      */
-    public function unRegister($services)
+    public function unRegister(array $services)
     {
         foreach ($services as $service => $url) {
             try {
@@ -143,8 +143,7 @@ class ZookeeperRegistryProcess extends RegistryProcess
      */
     public function getList()
     {
-        $services = Config::get("app::services");
-        foreach ($services as $service) {
+        foreach ($this->services as $service) {
             $addresses = $this->zk->getChildren("/GroupCo/{$service}/Providers");
             StaticCache::set("ServiceList:".$service, $addresses, false);
 

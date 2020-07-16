@@ -2,6 +2,8 @@
 
 namespace Group\Sync;
 
+use Group\Sync\Client\ProxyFactory;
+
 class Service
 {   
     protected $serv;
@@ -16,18 +18,21 @@ class Service
 
     protected $jobId;
 
+    protected $rely = [];
+
     /**
      * @param swoole_server
      * @param int
      * @param int
      * @param int
      */
-    public function __construct($serv, $fd, $jobId, $fromId)
+    public function __construct($serv = null, $fd = '', $jobId = '', $fromId = '', $rely = [])
     {
         $this->serv = $serv;
         $this->fd = $fd;
         $this->jobId = $jobId;
         $this->fromId = $fromId;
+        $this->rely = $rely;
     }
 
     /**
@@ -97,11 +102,18 @@ class Service
     public function createService($serviceName)
     {
         list($group, $serviceName) = explode(":", $serviceName);
+
+        //do proxy
+        if (in_array($group, $this->rely)) {
+            $proxy =  new ProxyFactory($group, $serviceName);
+            return $proxy->newMapperProxy();
+        }
+
         $class = $serviceName."ServiceImpl";
         $serviceName = "src\\Service\\$group\\Service\\$class";;
 
         return app()->singleton(strtolower($serviceName), function() use ($serviceName) {
-            return new $serviceName($this->serv, $this->fd, $this->jobId, $this->fromId);
+            return new $serviceName($this->serv, $this->fd, $this->jobId, $this->fromId, $this->rely);
         });
     }
 }

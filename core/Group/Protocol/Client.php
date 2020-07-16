@@ -6,6 +6,9 @@ use Config;
 use Group\Protocol\Client\BufTcp;
 use Group\Protocol\Client\EofTcp;
 use Group\Protocol\Client\Tcp;
+use Group\Protocol\Client\SyncBufTcp;
+use Group\Protocol\Client\SyncEofTcp;
+use Group\Protocol\Client\SyncTcp;
 
 class Client
 {   
@@ -13,18 +16,20 @@ class Client
 
     protected $port;
 
-    private static $instance;
+    protected $isSync = false;
 
     protected $clients;
 
     /**
      * @param string $ip,
      * @param string $port
+     * @param bool $isSync 同步客户端还是异步客户端
      */
-    public function __construct($ip = null, $port = null)
+    public function __construct($ip = null, $port = null, $isSync = false)
     {
         $this->ip = $ip;
         $this->port = $port;
+        $this->isSync = $isSync;
     }
 
     /**
@@ -41,33 +46,38 @@ class Client
 
         $protocol = Config::get("app::protocol");
 
-        if (isset($this->clients[$protocol][$ip.':'.$port])) {
-            return $this->clients[$protocol][$ip.':'.$port];
+        if ($this->isSync && isset($this->clients[$protocol][$ip.$port])) {
+            return $this->clients[$protocol][$ip.$port];
         }
 
         switch ($protocol) {
             case 'buf':
-              $server = new BufTcp($ip, $port);
+                if ($this->isSync) {
+                    $client = new SyncBufTcp($ip, $port);
+                } else {
+                    $client = new BufTcp($ip, $port);
+                }
               break;
             case 'eof':
-              $server = new EofTcp($ip, $port);
+                if ($this->isSync) {
+                    $client = new SyncEofTcp($ip, $port);
+                } else {
+                    $client = new EofTcp($ip, $port);
+                }
               break;
             default:
-              $server = new Tcp($ip, $port);
+                if ($this->isSync) {
+                    $client = new SyncTcp($ip, $port);
+                } else {
+                    $client = new Tcp($ip, $port);
+                }
               break;
         }
 
-        $this->clients[$protocol][$ip.':'.$port] = $server;
-
-        return $server;
-    }
-
-    public static function getInstance()
-    {
-        if (!(self::$instance instanceof self)){
-            self::$instance = new self;
+        if ($this->isSync) {
+            $this->clients[$protocol][$ip.$port] = $client;
         }
-
-        return self::$instance;
+        
+        return $client;
     }
 }

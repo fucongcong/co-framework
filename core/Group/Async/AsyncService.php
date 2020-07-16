@@ -61,6 +61,16 @@ class AsyncService
 
     public function call($cmd, $data = [], $timeout = false, $monitor = true)
     {   
+        if (is_array($cmd)) {
+            foreach ($cmd as &$one) {
+                str_replace("::", '/', $one);
+                str_replace("\\", "/", $one);
+            }
+        } else {
+            $cmd = str_replace("::", '/', $cmd);
+            $cmd = str_replace("\\", "/", $cmd);
+        }
+
         $container = (yield getContainer());
         if (!$this->serv || !$this->port) {
             yield $container->singleton('eventDispatcher')->dispatch(KernalEvent::SERVICE_FAIL, 
@@ -78,10 +88,10 @@ class AsyncService
         if ($this->service) {
             if (is_array($cmd)) {
                 foreach ($cmd as &$one) {
-                    $one = $this->service."\\".$one;
+                    $one = $this->service."/".$one;
                 }
             } else {
-                $cmd = $this->service."\\".$cmd;
+                $cmd = $this->service."/".$cmd;
             }
         }
         $data = ServiceReqProtocol::pack($cmd, $data);
@@ -133,7 +143,37 @@ class AsyncService
             }
 
             $res['response'] = $response->getData();
-            yield $res['response'];
+
+            if (is_array($cmd)) {
+                $ret = [];
+                foreach ($cmd as $callId => $c) {
+                    list($service, $serviceName, $method) = explode("/", $c);
+                    $reflector = new \ReflectionClass("\\Api\\{$service}\\{$serviceName}Service");
+                    if (!$reflector->hasMethod($method)) {
+                        $ret[$callId] = $res['response'][$callId];
+                    } else {
+                        $returnClassName = $reflector->getmethod($method)->getReturnType()->getName();
+                        $resp = new $returnClassName;
+                        $resp->mergeFromString($res['response'][$callId]);
+
+                        $ret[$callId] = $resp;
+                    }
+                }
+            } else {
+                $ret = false;
+                list($service, $serviceName, $method) = explode("/", $cmd);
+                $reflector = new \ReflectionClass("\\Api\\{$service}\\{$serviceName}Service");
+                if (!$reflector->hasMethod($method)) {
+                    $ret = $res['response'];
+                } else {
+                    $returnClassName = $reflector->getmethod($method)->getReturnType()->getName();
+                    $resp = new $returnClassName;
+                    $resp->mergeFromString($res['response']);
+                    $ret = $resp;
+                }
+            }
+
+            yield $ret;
         }
 
         if ($res['error']) {

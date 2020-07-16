@@ -59,6 +59,7 @@ class SwooleKernal
         $this->http->on('shutdown', [$this, 'onShutdown']);
 
         $this->registry = new Registry;
+        $this->registry->setRelyService(Config::get('app::services', []));
 
         $this->addProcesses();
         

@@ -82,7 +82,21 @@ class Server
      * swoole server的配置
      * @var array $setting
      */
-    protected $setting = [];
+    protected $setting = [
+        'worker_num' => 20,
+        //最大请求数，超过后讲重启worker进程
+        'max_request' => 500,
+        //task进程数量
+        'task_worker_num' => 30,
+        //task进程最大处理请求上限，超过后讲重启task进程
+        'task_max_request' => 500,
+        //心跳检测,长连接超时自动断开，秒
+        'heartbeat_idle_time' => 300,
+        //心跳检测间隔，秒
+        'heartbeat_check_interval' => 60,
+        //1平均分配，2按FD取摸固定分配，3抢占式分配，默认为取模
+        'dispatch_mode' => 3,
+    ];
 
     /**
      * @param array $config 配置文件
@@ -197,6 +211,9 @@ class Server
                     swoole_set_process_name("php {$this->servName}: worker");
                 }
             }
+
+            $this->getRegistry()->getServicesList();
+
         } catch (\Exception $e) {
             echo $e->getMessage().PHP_EOL;
         }
@@ -259,6 +276,9 @@ class Server
                     $serv->reload();
                     break;
                 default:
+                    if (empty($cmd)) {
+                        $cmd = $request->getCmds();
+                    }
                     $serv->task(['cmd' => $cmd, 'data' => $request->getData(), 'fd' => $fd]);
                     break;
             }
@@ -292,6 +312,8 @@ class Server
                 'fd' => $data['fd'],
                 'callId' => isset($data['callId']) ? $data['callId'] : $fd."-".$fromId,
                 'fromId' => $fromId,
+                'public' => isset($this->config['public']) ? explode(",", $this->config['public']) : [],
+                'rely' => isset($this->config['rely']) ? explode(",", $this->config['rely']) : [],
             ];
 
             if (is_array($cmd)) {
@@ -465,8 +487,14 @@ class Server
             throw new NotFoundException("cmd error !");
         }
 
-        list($class, $action) = explode("::", $cmd);
-        list($group, $class) = explode("\\", $class);
+        list($group, $class, $action) = explode("/", $cmd);
+        if (!empty($server['public'])) {
+            if (!in_array($group, $server['public'])) {
+                throw new Exception("Service $group is not public");
+            }
+        }
+        unset($server['public']);
+
         $service = "src\\Service\\$group\\Service\\{$class}ServiceImpl";
         if (!class_exists($service)) {
             throw new NotFoundException("Service $service not found !");
@@ -653,14 +681,22 @@ class Server
         unset($process);
     }
 
+    private function getRegistry()
+    {
+        $registry = new Registry;
+        $relys = isset($this->config['rely']) ? explode(",", $this->config['rely']) : [];
+        $registry->setRelyService($relys);
+
+        return $registry;
+    }   
+
     /**
      * 获取当前的注册中心的进程处理类
      * @return objetc RegistryProcess
      */
     private function getRegistryProcess()
     {   
-        $registry = new Registry;
-        return $registry->getRegistryProcess($this->config['registryAddress']);
+        return $this->getRegistry()->getRegistryProcess($this->config['registryAddress']);
     }
 
     private function setConfigCenter($serv)

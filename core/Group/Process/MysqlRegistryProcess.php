@@ -27,11 +27,13 @@ class MysqlRegistryProcess extends RegistryProcess
      */
     public $dao;
 
-    public function __construct($config)
+    public function __construct(array $config, array $services = [])
     {
         $this->config = $config;
         $this->dao = new Dao();
         $this->dao->setConfig(['default' => $this->config]);
+
+        $this->services = $services;
     }
 
     /**
@@ -39,7 +41,7 @@ class MysqlRegistryProcess extends RegistryProcess
      * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
      * @return boolean
      */
-    public function register($services)
+    public function register(array $services)
     {   
         $conn = $this->dao->getDefault();
         try {
@@ -65,7 +67,7 @@ class MysqlRegistryProcess extends RegistryProcess
      * @param  array $services 服务列表 ['User' => '127.0.0.1:6379']
      * @return boolean
      */
-    public function unRegister($services)
+    public function unRegister(array $services)
     {   
         $conn = $this->dao->getDefault();
         try {
@@ -90,7 +92,7 @@ class MysqlRegistryProcess extends RegistryProcess
      */
     public function subscribe()
     {
-        $services = Config::get("app::services");
+        $services = $this->services;
 
         $process = new swoole_process(function($process) use ($services) {
             //先采用轮询方式拉取
@@ -133,10 +135,9 @@ class MysqlRegistryProcess extends RegistryProcess
      */
     public function unSubscribe()
     {
-        $services = Config::get("app::services");
         $host = Config::get("app::ip", getLocalIp());
         $port = Config::get("app::port");
-        foreach ($services as $service) {
+        foreach ($this->services as $service) {
             $this->deleteConsumers($service, $host.":".$port);
         }
     }
@@ -146,8 +147,7 @@ class MysqlRegistryProcess extends RegistryProcess
      */
     public function getList()
     {   
-        $services = Config::get("app::services");
-        foreach ($services as $service) {
+        foreach ($this->services as $service) {
             $addresses = $this->getServiceProviders($service);
             $addresses = array_column($addresses, "address");
             StaticCache::set("ServiceList:".$service, $addresses, false);
