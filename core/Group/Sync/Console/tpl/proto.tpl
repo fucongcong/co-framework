@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package api.{{group}}.model;
 
+option php_metadata_namespace = "Api\\{{group}}\\GPBMetadata";
+
 service {{name}}Service {
   rpc get{{name}}(Get{{name}}Req) returns (Get{{name}}Res);
 

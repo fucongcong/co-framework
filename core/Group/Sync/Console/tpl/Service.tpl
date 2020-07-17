@@ -3,16 +3,14 @@
 namespace Api\{{group}};
 
 interface {{name}}Service
-{
-    public function get{{name}}($id);
-    
-    public function add{{name}}($data);
+{   
+    public function get{{name}}(\Api\{{group}}\Model\Get{{name}}Req $get{{name}}Req) : \Api\{{group}}\Model\Get{{name}}Res;
 
-    public function edit{{name}}($id, $data);
+    public function add{{name}}(\Api\{{group}}\Model\Add{{name}}Req $add{{name}}Req) : \Api\{{group}}\Model\Add{{name}}Res;
 
-    public function delete{{name}}($id);
+    public function edit{{name}}(\Api\{{group}}\Model\Edit{{name}}Req $edit{{name}}Req) : \Api\{{group}}\Model\Edit{{name}}Res;
 
-    public function search{{name}}(array $conditions, array $orderBy, $start, $limit);
-    
-    public function search{{name}}Count(array $conditions);
+    public function delete{{name}}(\Api\{{group}}\Model\Delete{{name}}Req $delete{{name}}Req) : \Api\{{group}}\Model\Delete{{name}}Res;
+
+    public function search{{name}}(\Api\{{group}}\Model\Search{{name}}Req $search{{name}}Req) : \Api\{{group}}\Model\Search{{name}}Res;
 }
