@@ -44,11 +44,11 @@ class SwooleKernal
         $this->pidPath = __ROOT__."runtime/pid";
         if ($check) $this->checkStatus();
 
-        $host = Config::get('app::host') ? : "127.0.0.1";
-        $port = Config::get('app::port') ? : 9777;
+        $this->host = Config::get('app::host') ? : "127.0.0.1";
+        $this->port = Config::get('app::port') ? : 9777;
         $setting = Config::get('app::setting');
 
-        $this->http = new swoole_http_server($host, $port);
+        $this->http = new swoole_http_server($this->host, $this->port);
         $this->http->set($setting);
 
         $this->http->on('Start', [$this, 'onStart']);
@@ -78,7 +78,7 @@ class SwooleKernal
             swoole_set_process_name("php http server: master");
         }
 
-        echo "HTTP Server Start...".PHP_EOL;
+        echo "HTTP Server Start...listened:{$this->host}:{$this->port}".PHP_EOL;
 
         $pid = $serv->master_pid;
         $this->mkDir($this->pidPath);

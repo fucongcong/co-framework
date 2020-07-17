@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package Group.Protocol;
+
+option php_metadata_namespace = "Group\\Protocol\\GPBMetadata";
+
+message Request {
+    string version = 1;
+
+    string contentType = 2;
+
+    string cmd = 3;
+
+    repeated string cmds = 4;
+
+    Data data = 5;
+}
+
+message Response {
+    string version = 1;
+
+    string contentType = 2;
+
+    int32 code = 3;
+
+    string errMsg = 4;
+
+    Data data = 5;
+}
+
+message Data {
+    string val = 1;
+
+    repeated string vals = 2;
+}

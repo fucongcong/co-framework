@@ -251,12 +251,10 @@ class Server
     public function onReceive(swoole_server $serv, $fd, $fromId, $data)
     {
         $data = $this->parse($data);
-
-        if ($this->debug) {
-            echo "Receive Data: {$data}".PHP_EOL;
-        }
-
         if ($data == 'ping') {
+            if ($this->debug) {
+                echo "Receive Data: {$data}".PHP_EOL;
+            }
             $serv->send($fd, Protocol::pack('pong'));
             return;
         }
@@ -265,6 +263,10 @@ class Server
             $config = $this->config;
 
             $request = ServiceReqProtocol::unpack($data);
+            if ($this->debug) {
+                $jsonstring = $request->serializeToJsonString();
+                echo "Receive Data: {$jsonstring}".PHP_EOL;
+            }
             $cmd = $request->getCmd();
             switch ($cmd) {
                 case 'close':
@@ -276,10 +278,19 @@ class Server
                     $serv->reload();
                     break;
                 default:
+                    $data = ServiceReqProtocol::getData($request);
                     if (empty($cmd)) {
-                        $cmd = $request->getCmds();
+                        $cmd = [];
+                        foreach ($request->getCmds() as $one) {
+                            $cmd[] = $one;
+                        }
+                        $dataArray = [];
+                        foreach ($data as $one) {
+                            $dataArray[] = $one;
+                        }
+                        $data = $dataArray;
                     }
-                    $serv->task(['cmd' => $cmd, 'data' => $request->getData(), 'fd' => $fd]);
+                    $serv->task(['cmd' => $cmd, 'data' => $data, 'fd' => $fd]);
                     break;
             }
         } catch (\Exception $e) {
@@ -514,6 +525,10 @@ class Server
         }
 
         $args = [];
+        if (empty($parameters) && count($method->getParameters()) > 0) {
+            throw new Exception("The Action ".$action." parameter is error");
+        }
+
         foreach ($method->getParameters() as $arg) {
             $paramName = $arg->getName();
             $reqClass = $arg->getClass();

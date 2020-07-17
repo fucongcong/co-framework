@@ -2,28 +2,27 @@
 
 namespace Group\Protocol\Transport;
 
-use Config;
+use Group\Protocol\Data;
 
 class MsgDecoder
 {
-    protected $reponse;
+    protected $data;
 
-    public function __construct($reponse)
+    public function __construct(Data $data)
     {
-        $this->reponse = $reponse;
+        $this->data = $data;
     }
 
     public function decode()
-    {   
-        if (Config::get("app::gzip", false)) {
-            $this->reponse = gzinflate($this->reponse);
+    {
+        $data = $this->data->getVal();
+        if ($data == '') {
+            if ($this->data->getVals()->count() == 0) {
+                return null;
+            }
+            return $this->data->getVals();
+        } else {
+            return $data;
         }
-
-        $type = Config::get("app::pack", 'json');
-        if ($type == 'serialize') {
-            return unserialize($this->reponse);
-        }
-
-        return json_decode($this->reponse, true);
     }
 }

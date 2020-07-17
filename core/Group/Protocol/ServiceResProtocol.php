@@ -34,23 +34,25 @@ class ServiceResProtocol
         }
 
         $res = new Response();
+        $res->setVersion(Config::get("app::protocol.version", '1.0.0'));
         $res->setCode($code);
-        $res->setData($data);
-        $res->setType(Config::get("app::pack", 'json'));
-        $res->setGzip((bool) Config::get("app::gzip", false));
         $res->setErrMsg($errMsg);
 
-        $encoder = new MsgEncoder($res);
+        $encoder = new MsgEncoder($data);
+        $data = $encoder->encode();
+        $res->setData($data);
+        $res->setContentType($encoder->getType());
+
         switch (self::$protocol) {
             case 'buf':
-                $body = pack("a*", $encoder->encode());
+                $body = pack("a*", $res->serializeToString());
                 $bodyLen = strlen($body);
                 $head = pack("N", $bodyLen);
                 return $head . $body;
             case 'eof':
-                return $encoder->encode().self::$packageEof;
+                return $res->serializeToString().self::$packageEof;
             default:
-                return $encoder->encode();
+                return $res->serializeToString();
         }
     }
 
@@ -60,16 +62,19 @@ class ServiceResProtocol
      */
     public static function unpack(string $response) : Response
     {   
-        $decoder = new MsgDecoder($response);
-        $response = $decoder->decode();
-
         $res = new Response;
-        $res->setCode($response['code'] ?? 200);
-        $res->setType($response['type'] ?? 'json');
-        $res->setErrMsg($response['errMsg'] ?? '');
-        $res->setData($response['data'] ?? []);
-        $res->setGzip($response['gzip'] ?? false);
+        try {
+            $res->mergeFromString($response);
+        } catch (\Exception $e) {
+        }
 
         return $res;
+    }
+
+    public static function getData(Response $response)
+    {
+        $decoder = new MsgDecoder($response->getData());
+
+        return $decoder->decode();
     }
 }

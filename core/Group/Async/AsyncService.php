@@ -142,8 +142,7 @@ class AsyncService
                 ]));
             }
 
-            $res['response'] = $response->getData();
-
+            $res['response'] = ServiceResProtocol::getData($response);
             if (is_array($cmd)) {
                 $ret = [];
                 foreach ($cmd as $callId => $c) {
