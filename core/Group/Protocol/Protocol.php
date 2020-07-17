@@ -3,7 +3,6 @@
 namespace Group\Protocol;
 
 use Config;
-use Group\Protocol\DataPack;
 
 class Protocol 
 {   
@@ -29,9 +28,9 @@ class Protocol
             self::$protocol = Config::get("app::protocol");
         }
 
-        if ($data != "ping") {
-            $data = DataPack::pack($data);
-        }
+        // if ($data != "ping") {
+        //     $data = DataPack::pack($data);
+        // }
 
         switch (self::$protocol) {
             case 'buf':
@@ -51,7 +50,8 @@ class Protocol
      * @return string
      */
     public static function unpack($data = [])
-    {
-        return DataPack::unpack($data);
+    {   
+        return $data;
+        //return DataPack::unpack($data);
     }
 }

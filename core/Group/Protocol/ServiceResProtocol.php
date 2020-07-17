@@ -3,7 +3,6 @@
 namespace Group\Protocol;
 
 use Config;
-use Group\Protocol\DataPack;
 use Group\Protocol\Response;
 use Group\Protocol\Transport\MsgEncoder;
 use Group\Protocol\Transport\MsgDecoder;

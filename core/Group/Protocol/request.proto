@@ -29,7 +29,7 @@ message Response {
 }
 
 message Data {
-    string val = 1;
+    bytes val = 1;
 
-    repeated string vals = 2;
+    repeated bytes vals = 2;
 }

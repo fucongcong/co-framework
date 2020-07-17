@@ -87,7 +87,7 @@ class DataPack
      */
     public static function checkConfig()
     {
-        self::$pack = Config::get("app::pack");
-        self::$gzip = (bool) Config::get("app::gzip");
+        self::$pack = Config::get("app::pack", 'json');
+        self::$gzip = (bool) Config::get("app::gzip", false);
     }
 }

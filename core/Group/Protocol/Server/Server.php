@@ -459,7 +459,6 @@ class Server
             //如果客户端已经关闭了的话说明不需要server返回数据
             //判断下data的类型
             $data = ServiceResProtocol::pack(200, $data);
-            //$data = DataPack::pack(['cmd' => '', 'data' => $data]);
             $serv->send($fd, $data);
         }
     }

@@ -14,11 +14,11 @@ use Google\Protobuf\Internal\GPBUtil;
 class Data extends \Google\Protobuf\Internal\Message
 {
     /**
-     * Generated from protobuf field <code>string val = 1;</code>
+     * Generated from protobuf field <code>bytes val = 1;</code>
      */
     protected $val = '';
     /**
-     * Generated from protobuf field <code>repeated string vals = 2;</code>
+     * Generated from protobuf field <code>repeated bytes vals = 2;</code>
      */
     private $vals;
 
@@ -38,7 +38,7 @@ class Data extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string val = 1;</code>
+     * Generated from protobuf field <code>bytes val = 1;</code>
      * @return string
      */
     public function getVal()
@@ -47,20 +47,20 @@ class Data extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>string val = 1;</code>
+     * Generated from protobuf field <code>bytes val = 1;</code>
      * @param string $var
      * @return $this
      */
     public function setVal($var)
     {
-        GPBUtil::checkString($var, True);
+        GPBUtil::checkString($var, False);
         $this->val = $var;
 
         return $this;
     }
 
     /**
-     * Generated from protobuf field <code>repeated string vals = 2;</code>
+     * Generated from protobuf field <code>repeated bytes vals = 2;</code>
      * @return \Google\Protobuf\Internal\RepeatedField
      */
     public function getVals()
@@ -69,13 +69,13 @@ class Data extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * Generated from protobuf field <code>repeated string vals = 2;</code>
+     * Generated from protobuf field <code>repeated bytes vals = 2;</code>
      * @param string[]|\Google\Protobuf\Internal\RepeatedField $var
      * @return $this
      */
     public function setVals($var)
     {
-        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::STRING);
+        $arr = GPBUtil::checkRepeatedField($var, \Google\Protobuf\Internal\GPBType::BYTES);
         $this->vals = $arr;
 
         return $this;
