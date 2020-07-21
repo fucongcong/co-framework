@@ -33,7 +33,7 @@ class Client
     }
 
     /**
-     * @return Group\Async\Client\Tcp
+     * @return Group\Async\Client\Tcp or Group\Sync\Client\Tcp
      */
     public function getClient($ip = null, $port = null)
     {   
@@ -79,5 +79,14 @@ class Client
         }
         
         return $client;
+    }
+
+    public function call(string $data) : array
+    {
+        if ($this->isSync) {
+            return $this->getClient()->call($data);
+        }
+
+        return [];
     }
 }

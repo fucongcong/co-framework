@@ -55,17 +55,15 @@ function json($data = [], $status = 200, array $headers = [], $options = 0)
 /**
  * 返回一个service对象
  *
- * @param  string     $serviceName
+ * @param string $serviceName
+ * @param bool $usePool
  * @return object
- *
  */
 function service_center($serviceName, $usePool = false)
 {   
     $container = (yield getContainer());
 
     if (!$container->singleton('serviceCenter')->getService($serviceName)) {
-        // $res = (yield service('node_center')->call("NodeCenter\NodeCenter::getService", ['serviceName' => $serviceName], false, false));
-        //$container->singleton('serviceCenter')->setService($serviceName, $res['ip'], $res['port']);
         $url = \StaticCache::get("Service:{$serviceName}", false);
         if ($url) {
             list($ip, $port) = explode(":", $url);
@@ -77,15 +75,14 @@ function service_center($serviceName, $usePool = false)
     $container->singleton('serviceCenter')->enablePool($usePool);
     yield $container->singleton('serviceCenter')->createService($serviceName);
 }
-    
+
 /**
  * 返回一个service对象
  *
- * @param  string     $serviceName
+ * @param string $serviceName
  * @return object
- *
  */
-function service($serviceName, $usePool = false)
+function service($serviceName)
 {   
     return app('service')->createService($serviceName);
 }

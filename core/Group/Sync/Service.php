@@ -22,9 +22,10 @@ class Service
 
     /**
      * @param swoole_server
-     * @param int
-     * @param int
-     * @param int
+     * @param string $fd
+     * @param string $jobId
+     * @param string $fromId
+     * @param array $rely
      */
     public function __construct($serv = null, $fd = '', $jobId = '', $fromId = '', $rely = [])
     {
@@ -37,8 +38,8 @@ class Service
 
     /**
      * 返回一个数据库对象
-     * @param  string 服务名 [User:User]
-     * @return [object]
+     * @param string 服务名 [User:User]
+     * @return object|null [object]
      */
     public function createDao($serviceName)
     {
@@ -78,9 +79,9 @@ class Service
 
     /**
      * 向客户端发送消息
-     * @param  swoole_server
-     * @param  int
-     * @param  array
+     * @param swoole_server $serv
+     * @param $fd
+     * @param $data
      */
     private function send(swoole_server $serv, $fd, $data){
         $fdinfo = $serv->connection_info($fd);
@@ -96,8 +97,8 @@ class Service
     }
 
     /**
-     * @param  string 服务名 [User:User]
-     * @return [object]
+     * @param string 服务名 [User:User]
+     * @return ProxyFactory|object|null [object]
      */
     public function createService($serviceName)
     {

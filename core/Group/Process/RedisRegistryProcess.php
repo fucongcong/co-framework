@@ -2,12 +2,10 @@
 
 namespace Group\Process;
 
-use Group\Process\RegistryProcess;
-use swoole_process;
-use Group\Process;
 use Group\Config\Config;
 use Redis;
 use StaticCache;
+use swoole_process;
 
 class RedisRegistryProcess extends RegistryProcess
 {   

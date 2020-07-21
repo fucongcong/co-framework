@@ -24,8 +24,6 @@ class SyncApp
      */
     public $container;
 
-    public $router;
-
     /**
      * array aliases
      */
@@ -87,7 +85,8 @@ class SyncApp
     /**
      *  向App存储一个单例对象
      *
-     * @param  name，callable
+     * @param $name
+     * @param null $callable
      * @return object
      */
     public function singleton($name, $callable = null)
@@ -132,7 +131,7 @@ class SyncApp
     /**
      * return single class
      *
-     * @return core\App\App App
+     * @return SyncApp App
      */
     public static function getInstance()
     {
@@ -179,7 +178,7 @@ class SyncApp
 
     /**
      * ingore ServiceProviders
-     *
+     * @param $provider
      */
     public function ingoreServiceProviders($provider)
     {   
@@ -207,7 +206,7 @@ class SyncApp
 
         $reflector = app('container')->buildMoudle($abstract);
         if (!$reflector->isInstantiable()) {
-            throw new Exception("Target [$concrete] is not instantiable!");
+            throw new Exception("Target [$abstract] is not instantiable!");
         }
 
         //有单例

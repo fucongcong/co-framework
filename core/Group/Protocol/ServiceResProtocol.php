@@ -22,9 +22,10 @@ class ServiceResProtocol
     protected static $protocol = false;
 
     /**
-     * @param  string $cmd 需要打包的命令
-     * @param  array $data 需要打包的数据
-     * @return string 
+     * @param int $code
+     * @param string $data 需要打包的数据
+     * @param string $errMsg
+     * @return string
      */
     public static function pack(int $code = 200, $data = '', string $errMsg = '') : string
     {   
@@ -73,7 +74,6 @@ class ServiceResProtocol
     public static function getData(Response $response)
     {
         $decoder = new MsgDecoder($response->getData());
-
         return $decoder->decode();
     }
 }

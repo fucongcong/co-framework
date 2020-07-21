@@ -22,9 +22,10 @@ class ServiceReqProtocol
     protected static $protocol = false;
 
     /**
-     * @param  string $cmd 需要打包的命令
-     * @param  array $data 需要打包的数据
-     * @return string 
+     * @param string $cmd 需要打包的命令
+     * @param string $data 需要打包的数据
+     * @return string
+     * @throws \Exception
      */
     public static function pack($cmd = '', $data = '') : string
     {   
@@ -61,8 +62,8 @@ class ServiceReqProtocol
     }
 
     /**
-     * @param  array $data the pack data
-     * @return array 解包完的数据
+     * @param string $request
+     * @return \Group\Protocol\Request 解包完的数据
      */
     public static function unpack(string $request) : Request
     {   
