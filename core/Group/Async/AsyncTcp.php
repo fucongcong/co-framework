@@ -3,7 +3,6 @@
 namespace Group\Async;
 
 use Group\Events\KernalEvent;
-use Group\Protocol\DataPack;
 use Group\Protocol\Protocol;
 use Group\Protocol\Client;
 use Event;

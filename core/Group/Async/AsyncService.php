@@ -4,7 +4,6 @@ namespace Group\Async;
 
 use Group\Protocol\Client;
 use Group\Events\KernalEvent;
-use Group\Protocol\DataPack;
 use Group\Protocol\ServiceReqProtocol;
 use Group\Protocol\ServiceResProtocol;
 use Group\Async\Pool\TcpPool;

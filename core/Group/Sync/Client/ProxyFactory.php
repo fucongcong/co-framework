@@ -50,7 +50,7 @@ class ProxyFactory
             $data = ServiceReqProtocol::pack($cmd, $parameters[0]);
             $res = $this->cli->call($data);
 
-            if ($res['response']) {
+            if ($res['response'] !== false) {
                 $res = ServiceResProtocol::unpack($res['response']);
                 if ($res->getCode() == 200) {
                     $returnClassName = $reflector->getmethod($method)->getReturnType()->getName();
@@ -58,8 +58,10 @@ class ProxyFactory
                     $ret->mergeFromString($res->getData());
                     return $ret; 
                 }
-                //这里可以抛一个异常事件出去 方便调试 还要做故障切换
+
+                return false;
             }
+            //做故障切换 
             return false;
         } catch(\Exception $e) {
             return false;
