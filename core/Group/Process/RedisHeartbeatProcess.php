@@ -39,23 +39,30 @@ class RedisHeartbeatProcess extends Process
         $process = new swoole_process(function($process) use ($redis) {
             //心跳检测
             swoole_timer_tick(5000, function() use ($redis) {
+                $addrs = [];
                 $services = $redis->sMembers('Providers');
                 foreach ($services as $service) {
                     $addresses = $redis->sMembers('Providers:'.$service);
                     if ($addresses) {
                         foreach ($addresses as $address) {
-                            list($ip, $port) = explode(":", $address);
-                            $client = new Tcp($ip, $port);
-                            $client->setTimeout(5);
-                            $client->setData(Protocol::pack('ping'));
-                            $client->call(function($response, $error, $calltime) use ($service, $address, $redis) {
-                                //服务挂了，或者异常了
-                                if (!$response) {
-                                    $redis->sRem('Providers:'.$service, $address);
-                                }
-                            });
+                            $addrs[$address][] = $service;
                         }
                     }
+                }
+
+                foreach ($addrs as $address => $serviceList) {
+                    list($ip, $port) = explode(":", $address);
+                    $client = new Tcp($ip, $port);
+                    $client->setTimeout(5);
+                    $client->setData(Protocol::pack('ping'));
+                    $client->call(function($response, $error, $calltime) use ($service, $address, $redis, $serviceList) {
+                        //服务挂了，或者异常了
+                        if (!$response) {
+                            foreach ($serviceList as $service) {
+                                $redis->sRem('Providers:'.$service, $address);
+                            }
+                        }
+                    });
                 }
             });
         });
