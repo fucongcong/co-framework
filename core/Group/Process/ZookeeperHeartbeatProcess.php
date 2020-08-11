@@ -43,32 +43,39 @@ class ZookeeperHeartbeatProcess extends Process
             //心跳检测
             $zk = new ZookeeperApi($this->url);
             swoole_timer_tick(1000, function() use ($zk) {
+                $addrs = [];
                 $services = $zk->getChildren("/GroupCo");
                 if ($services) {
                     foreach ($services as $service) {
                         $addresses = $zk->getChildren("/GroupCo/{$service}/Providers");
                         if ($addresses) {
                             foreach ($addresses as $address) {
-                                list($ip, $port) = explode(":", $address);
-                                $client = new Tcp($ip, $port);
-                                $client->setTimeout(5);
-                                $client->setData(Protocol::pack('ping'));
-                                $client->call(function($response, $error, $calltime) use ($service, $address, $zk) {
-                                    //服务挂了，或者异常了
-                                    if (!$response) {
-                                        try {
-                                            $zk->deleteNode("/GroupCo/{$service}/Providers/".$address);
-
-                                            $addresses = $zk->getChildren("/GroupCo/{$service}/Providers");
-                                            $zk->set("/GroupCo/{$service}/Providers", json_encode($addresses));
-                                        } catch (Exception $e) {
-                                            Log::error($e->getMessage(), [], 'zookeeper.heartbeat');
-                                        }
-                                    }
-                                });
+                                $addrs[$address][] = $service;
                             }
                         }
                     }
+                }
+
+                foreach ($addrs as $address => $serviceList) {
+                    list($ip, $port) = explode(":", $address);
+                    $client = new Tcp($ip, $port);
+                    $client->setTimeout(5);
+                    $client->setData(Protocol::pack('ping'));
+                    $client->call(function($response, $error, $calltime) use ($service, $address, $zk, $serviceList) {
+                        //服务挂了，或者异常了
+                        if (!$response) {
+                            foreach ($serviceList as $service) {
+                                try {
+                                    $zk->deleteNode("/GroupCo/{$service}/Providers/".$address);
+
+                                    $addresses = $zk->getChildren("/GroupCo/{$service}/Providers");
+                                    $zk->set("/GroupCo/{$service}/Providers", json_encode($addresses));
+                                } catch (Exception $e) {
+                                    Log::error($e->getMessage(), [], 'zookeeper.heartbeat');
+                                }
+                            }
+                        }
+                    });
                 }
             });
         });
