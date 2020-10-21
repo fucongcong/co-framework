@@ -40,7 +40,6 @@ class ZookeeperHeartbeatProcess extends Process
     public function register()
     {
         $process = new swoole_process(function($process) {
-            //心跳检测
             $zk = new ZookeeperApi($this->url);
             swoole_timer_tick(1000, function() use ($zk) {
                 $addrs = [];

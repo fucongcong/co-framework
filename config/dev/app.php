@@ -19,6 +19,7 @@ return [
     'onWorkStartServices' => [
         'Group\Async\Pool\MysqlPoolServiceProvider',
         'Group\Async\Pool\RedisPoolServiceProvider',
+        //'Group\Async\Pool\WebSocketPoolServiceProvider',
     ],
 
     'onRequestServices' => [
@@ -48,12 +49,13 @@ return [
         //日志
         //'daemonize' => true,
         'log_file' => 'runtime/error.log',
-        'worker_num' => 2,    //worker process num
+        'log_level' => 5,
+        'worker_num' => 4,    //worker process num
         'backlog' => 256,   //listen backlog
         'heartbeat_idle_time' => 30,
         'heartbeat_check_interval' => 10,
         'dispatch_mode' => 1, 
-        'max_request' => 100,
+        //'max_request' => 30000,
         'reload_async' => true,
     ],
 
@@ -61,7 +63,29 @@ return [
     'process' => [
     ],
 
+    //===============================websocket config==========================
+    //单机配置
+    'ws.serv' => '127.0.0.1',
+    'ws.port' => '9527',
+    //集群就启用注册中心
+    //'ws.registry' => true,
+    //连接池大小
+    'ws.maxPool' => 100,
+    'ws.ssl'  => false,
+    'ws.setting' => [
+        //日志
+        //'daemonize' => true,
+        'log_file' => 'runtime/error.log',
+        'log_level' => 5,
+        'worker_num' => 4,    //worker process num
+        'backlog' => 256,   //listen backlog
+        'heartbeat_idle_time' => 30,
+        'heartbeat_check_interval' => 10,
+        'dispatch_mode' => 1, 
+    ],
+    //===============================websocket config==========================
 
+    //
     //依赖的服务模块 
     'services' => ["User", "Order", "Monitor", "NodeCenter"],
     //服务调用失败次数，超出后进行故障切换

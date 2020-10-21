@@ -63,7 +63,7 @@ return
 
             "dbname" => "Demo",
 
-            "user" => "root",
+            "user" => "cm",
 
             "password" => "123",
 
