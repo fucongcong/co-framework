@@ -41,13 +41,14 @@ class SwooleKernal
      */
     public function init($check = true)
     {   
-        $this->pidPath = __ROOT__."runtime/pid";
+        $setting = Config::get('app::setting');
+        $this->pidPath = isset($setting['pid_path']) ? $setting['pid_path'] : __FILEROOT__."runtime";
+        $this->pidPath .= "/pid";
         if ($check) $this->checkStatus();
 
         $host = Config::get('app::host') ? : "127.0.0.1";
         $port = Config::get('app::port') ? : 9777;
-        $setting = Config::get('app::setting');
-
+        
         $this->http = new swoole_http_server($host, $port);
         $this->http->set($setting);
 
@@ -103,6 +104,14 @@ class SwooleKernal
     {   
         if (function_exists('opcache_reset')) {
             opcache_reset();
+        }
+
+        //发布时候路径问题
+        if (file_exists("/var/log/api/webroot")) {
+            $webroot = trim(file_get_contents("/var/log/api/webroot"));
+            define('__ROOT__', $webroot . DIRECTORY_SEPARATOR);
+        } else {
+            define('__ROOT__', __FILEROOT__);
         }
 
         $this->maxTaskId = 0;
@@ -244,8 +253,9 @@ class SwooleKernal
      * 服务状态控制
      */
     private function checkStatus()
-    {   
+    {
         $args = getopt('s:');
+
         if(isset($args['s'])) {
 
             if (!file_exists($this->pidPath)) {

@@ -93,7 +93,9 @@ class Server
         $config['config'] = array_merge($this->setting, $config['config']);
         $this->config = $config;
         $this->servName = $servName;
-        $this->pidPath = __ROOT__."runtime/service/{$servName}/pid";
+        $this->pidPath = isset($this->config['config']['pid_path']) ? $this->config['config']['pid_path'] : __FILEROOT__."runtime";
+        $this->pidPath .= "/service/{$servName}/pid";
+
         $this->checkStatus();
 
         $this->serv = new swoole_server($config['serv'], $config['port']);
@@ -179,8 +181,17 @@ class Server
     public function onWorkerStart(swoole_server $serv, $workerId)
     {   
         try {
-            if (function_exists('opcache_reset')) opcache_reset();
             if (function_exists('apc_clear_cache')) apc_clear_cache();
+            if (function_exists('opcache_reset')) opcache_reset();
+            //发布时候路径问题
+            if (file_exists("/var/log/api/webroot")) {
+                $webroot = trim(file_get_contents("/var/log/api/webroot"));
+                define('__ROOT__', $webroot . DIRECTORY_SEPARATOR);
+            } else {
+                define('__ROOT__', __FILEROOT__);
+            }
+            echo __ROOT__;
+
             $loader = require __ROOT__.'/vendor/autoload.php';
             $app = new \Group\Sync\SyncApp();
             $app->initSelf();
@@ -276,17 +287,17 @@ class Server
      * @return array
      */
     public function onTask(swoole_server $serv, $fd, $fromId, $data)
-    {
+    {   
+        $cmd = $data['cmd'];
+        $cmdData = $data['data'];
+        $server = [
+            'serv' => $serv,
+            'fd' => $data['fd'],
+            'callId' => isset($data['callId']) ? $data['callId'] : $fd."-".$fromId,
+            'fromId' => $fromId,
+        ];
+        
         try {
-            $cmd = $data['cmd'];
-            $cmdData = $data['data'];
-            $server = [
-                'serv' => $serv,
-                'fd' => $data['fd'],
-                'callId' => isset($data['callId']) ? $data['callId'] : $fd."-".$fromId,
-                'fromId' => $fromId,
-            ];
-
             if (is_array($cmd)) {
                 $tasks = [];
                 foreach ($cmd as $callId => $oneCmd) {
@@ -310,6 +321,11 @@ class Server
                 'trace'   => $e->getTraceAsString(),
                 'type'    => $e->getCode(),
             ]);
+            return [
+                'fd' => $server['fd'],
+                'data' => false,
+                'callId' => $server['callId']
+            ];
         }
     }
 
