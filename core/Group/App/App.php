@@ -66,6 +66,7 @@ class App
      *
      */
     protected $singles = [
+        'balancer' => 'Group\Services\ServiceBalancer'
     ];
 
     protected $onWorkStartServices = [

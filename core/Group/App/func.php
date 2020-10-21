@@ -64,9 +64,8 @@ function service_center($serviceName, $usePool = false)
     $container = (yield getContainer());
 
     if (!$container->singleton('serviceCenter')->getService($serviceName)) {
-        // $res = (yield service('node_center')->call("NodeCenter\NodeCenter::getService", ['serviceName' => $serviceName], false, false));
-        //$container->singleton('serviceCenter')->setService($serviceName, $res['ip'], $res['port']);
-        $url = \StaticCache::get("Service:{$serviceName}", false);
+
+        $url = app('balancer')->select($serviceName);
         if ($url) {
             list($ip, $port) = explode(":", $url);
             $container->singleton('serviceCenter')->setService($serviceName, $ip, $port);
