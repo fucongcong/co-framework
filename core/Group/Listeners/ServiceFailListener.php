@@ -31,7 +31,7 @@ class ServiceFailListener extends \Listener
 
         //故障切换
         $address = StaticCache::get("Service:".$info['service']);
-        $addresses =StaticCache::get("ServiceList:".$info['service']);
+        $addresses = StaticCache::get("ServiceList:".$info['service']);
         $other = array_diff($addresses, [$address]);
 
         if ($other) {

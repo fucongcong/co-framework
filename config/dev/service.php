@@ -6,7 +6,8 @@ return [
     //服务中心地址
     //'node_center' => '',
     //'node_center' => 'http://groupco.com',
-
+    'balancer.maxcount' => 10,
+    
     //注册中心，如果不为空的话，在server启动时会起一个子进程订阅依赖的服务列表。
     'registryAddress' => [
         'scheme' => 'redis',

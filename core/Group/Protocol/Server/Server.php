@@ -287,17 +287,17 @@ class Server
      * @return array
      */
     public function onTask(swoole_server $serv, $fd, $fromId, $data)
-    {
+    {   
+        $cmd = $data['cmd'];
+        $cmdData = $data['data'];
+        $server = [
+            'serv' => $serv,
+            'fd' => $data['fd'],
+            'callId' => isset($data['callId']) ? $data['callId'] : $fd."-".$fromId,
+            'fromId' => $fromId,
+        ];
+        
         try {
-            $cmd = $data['cmd'];
-            $cmdData = $data['data'];
-            $server = [
-                'serv' => $serv,
-                'fd' => $data['fd'],
-                'callId' => isset($data['callId']) ? $data['callId'] : $fd."-".$fromId,
-                'fromId' => $fromId,
-            ];
-
             if (is_array($cmd)) {
                 $tasks = [];
                 foreach ($cmd as $callId => $oneCmd) {
@@ -321,6 +321,11 @@ class Server
                 'trace'   => $e->getTraceAsString(),
                 'type'    => $e->getCode(),
             ]);
+            return [
+                'fd' => $server['fd'],
+                'data' => false,
+                'callId' => $server['callId']
+            ];
         }
     }
 

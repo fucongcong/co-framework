@@ -59,6 +59,7 @@ class RedisPool extends Pool
                     $this->put($client);
                 } else {
                     $this->ableCount--;
+                    echo 'RedisPool连接池初始化失败，无法连接:'.$ip.':'.$port.PHP_EOL;
                 }
             });
             $this->ableCount++;
