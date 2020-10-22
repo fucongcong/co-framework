@@ -28,12 +28,7 @@ class RedisRegistryProcess extends RegistryProcess
         $this->config = $config;
         $this->host = $config['host'];
         $this->port = $config['port'];
-        $this->redis = new Redis;
-        $this->redis->connect($this->host, $this->port);
-        if (isset($config['auth'])) {
-            $this->redis->auth($config['auth']);
-        }
-        $this->redis->setOption(Redis::OPT_PREFIX, isset($config['prefix']) ? $config['prefix'] : '');
+        $this->redis = $this->createRedisConn();
     }
 
     /**
@@ -42,30 +37,34 @@ class RedisRegistryProcess extends RegistryProcess
      */
     public function subscribe()
     {   
-        $this->redis->setOption(Redis::OPT_READ_TIMEOUT, -1);
         $services = Config::get("app::services");
         $server = $this->server;
-        $redis = $this->redis;
-        $process = new swoole_process(function($process) use ($server, $redis, $services) {
-            //订阅服务
-            $redis->subscribe($services, function ($redis, $chan, $msg) use ($server) {
-                if ($this->config['prefix']) {
-                    list($prefix, $chan) = explode($this->config['prefix'], $chan);
-                }
+        $process = new swoole_process(function($process) use ($server, $services) {
+            try {
+                $r = $this->createRedisConn();
+                $r->setOption(Redis::OPT_READ_TIMEOUT, -1);
+                //订阅服务
+                $r->subscribe($services, function ($redis, $chan, $msg) use ($server) {
+                    if ($this->config['prefix']) {
+                        list($prefix, $chan) = explode($this->config['prefix'], $chan);
+                    }
 
-                $redis = new Redis;
-                $redis->connect($this->host, $this->port);
-                if (isset($this->config['auth'])) $redis->auth($this->config['auth']);
-                $redis->setOption(Redis::OPT_PREFIX, isset($this->config['prefix']) ? $this->config['prefix'] : '');
-                
-                $addresses = $redis->sMembers('Providers:'.$chan);
-                $addresses = json_encode($addresses);
+                    $r = $this->createRedisConn();
+                    $addresses = $r->sMembers('Providers:'.$chan);
+                    $r->close();
+                    unset($r);
+                    $addresses = json_encode($addresses);
 
-                for ($i=0; $i < $server->setting['worker_num']; $i++) {
-                    $server->sendMessage($chan."::".$addresses, $i);
-                }
-                unset($redis);
-            });
+                    for ($i=0; $i < $server->setting['worker_num']; $i++) {
+                        $server->sendMessage($chan."::".$addresses, $i);
+                    }
+                });
+            } catch (\Exception $e) {
+                echo '['.date('Y-m-d H:i:s').']RegistryProcess:'.$e->getMessage().PHP_EOL;
+                $r->close();
+                echo '['.date('Y-m-d H:i:s').']RegistryProcess:redis已断开，正在尝试重连'.PHP_EOL;
+                sleep(5);   
+            }
         });
 
         foreach ($services as $service) {
@@ -132,5 +131,15 @@ class RedisRegistryProcess extends RegistryProcess
             $address = $this->redis->sRandMember('Providers:'.$service);
             StaticCache::set("Service:".$service, $address, false);
         }
+    }
+
+    private function createRedisConn()
+    {
+        $r = new Redis;
+        $r->connect($this->host, $this->port, 2, NULL, 2000);
+        if (isset($this->config['auth'])) $r->auth($this->config['auth']);
+        $r->setOption(Redis::OPT_PREFIX, isset($this->config['prefix']) ? $this->config['prefix'] : '');
+        
+        return $r;
     }
 }

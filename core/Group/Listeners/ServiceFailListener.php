@@ -21,32 +21,16 @@ class ServiceFailListener extends \Listener
     public function onServiceFail(\Event $event)
     {   
         $retries = Config::get("app::retries", 3);
-
         $info = $event->getProperty();
-        $errorCount = StaticCache::get('Error:'.$info['service'], 0);
+        $errorCount = (yield app('balancer')->getErrorCounter($info['service']));
         if ($errorCount <= $retries) {
-            StaticCache::set('Error:'.$info['service'], $errorCount + 1, false);
-            return;
+            yield app('balancer')->setErrorCounter($info['service']);
         }
 
         //故障切换
-        $address = StaticCache::get("Service:".$info['service']);
-        $addresses = StaticCache::get("ServiceList:".$info['service']);
+        $address = app('balancer')->getCurrentServiceAddr($info['service']);
+        $addresses = app('balancer')->getServiceAddrList($info['service']);
         $other = array_diff($addresses, [$address]);
-
-        if ($other) {
-            StaticCache::set("Service:".$info['service'], $other[0], false);
-            StaticCache::set("ServiceList:".$info['service'], $other, false);
-            StaticCache::set('Error:'.$info['service'], 0, false);
-
-            $url = $other[0];
-            $container = $info['container'];
-            if ($url) {
-                list($ip, $port) = explode(":", $url);
-                $container->singleton('serviceCenter')->setService($info['service'], $ip, $port);
-            }
-        } else {
-            StaticCache::set('Error:'.$info['service'], $errorCount + 1, false);
-        }
+        app('balancer')->setServiceAddrList($info['service'], $other);
     }
 }

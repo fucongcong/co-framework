@@ -53,7 +53,7 @@ abstract class AbstractBalancer
      * @param  string $serviceName
      * @param  int $count 计数
      */
-    abstract public function setErrorCounter($serviceName, $count);
+    abstract public function setErrorCounter($serviceName, $count = 1);
 
     /**
      * 获得某个服务调用失败的错误计数，默认为0
