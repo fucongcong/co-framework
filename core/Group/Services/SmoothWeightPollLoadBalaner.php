@@ -20,19 +20,19 @@ class SmoothWeightPollLoadBalaner extends AbstractLoadBalaner
     }
     
     public function select($addrs)
-    {   
+    {
         if (!$addrs) {
             return false;
         }
 
-        if (array_diff($addrs, array_keys($this->nodes))) {
+        if (array_diff($addrs, array_keys($this->nodes)) || count($addrs) != count($this->nodes)) {
             $this->rebuildNodes($addrs);
         }
 
         if (empty($this->weight)) {
             return false;
         }
-        
+
         krsort($this->weight, SORT_NATURAL);
         $addr = current($this->weight);
 

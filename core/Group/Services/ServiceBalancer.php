@@ -76,17 +76,17 @@ class ServiceBalancer extends AbstractBalancer
      * @param  string $serviceName
      * @param  int $count 计数
      */
-    public function setErrorCounter($serviceName, $count)
+    public function setErrorCounter($serviceName, $count = 1)
     {   
-        $count = 0;
+        $c = 0;
         $addr = $this->getCurrentServiceAddr($serviceName);
         if ($addr) {
-            $count = (yield AsyncRedis::incrBy("ErrorCounter:{$serviceName}:{$addr}", intval($count)));
+            $c = (yield AsyncRedis::incrBy("ErrorCounter:{$serviceName}:{$addr}", intval($count)));
             //默认在60s内计数，超过后重新计数
             yield AsyncRedis::expire("ErrorCounter:{$serviceName}:{$addr}", 60);
         }
         
-        yield $count;
+        yield $c;
     }
 
     /**
@@ -97,7 +97,8 @@ class ServiceBalancer extends AbstractBalancer
     {   
         $addr = $this->getCurrentServiceAddr($serviceName);
         if ($addr) {
-            yield AsyncRedis::get("ErrorCounter:{$serviceName}:{$addr}");
+            $res = (yield AsyncRedis::get("ErrorCounter:{$serviceName}:{$addr}"));
+            yield intval($res);
         } else {
             yield 0;
         }
