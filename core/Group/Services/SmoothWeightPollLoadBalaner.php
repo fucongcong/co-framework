@@ -4,6 +4,10 @@ namespace Group\Services;
 
 use Group\Config\Config;
 
+/*
+    平滑轮询负载均衡算法
+    算法简介：根据各各节点权重(默认全部为1)，进行加权轮询，按权重最高者选择。
+ */
 class SmoothWeightPollLoadBalaner extends AbstractLoadBalaner
 {   
     public $nodes = [];
