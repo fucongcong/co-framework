@@ -64,6 +64,13 @@ Class RouteService implements RouteContract
      */
     protected $parametersName;
 
+    /**
+     * the route config
+     *
+     * @var array
+     */
+    protected $config;
+
     private static $instance;
 
     /**
@@ -209,6 +216,26 @@ Class RouteService implements RouteContract
         return $this->routing ;
     }
     
+    /**
+     * set config
+     *
+     * @param config
+     */
+    public function setConfig($config)
+    {
+        $this->config = $config;
+    }
+
+    /**
+     * get config
+     *
+     * @return config
+     */
+    public function getConfig()
+    {
+        return $this->config ;
+    }
+
     /**
      * 根据别名反解析路由
      *

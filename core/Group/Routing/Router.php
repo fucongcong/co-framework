@@ -146,7 +146,8 @@ class Router implements RouterContract
 
         $this->route->setAction($action);
         $this->route->setParameters(isset($config['parameters']) ? $config['parameters'] : array());
-
+        $this->route->setConfig($config);
+        
         return $this->container->doAction($className, $action, isset($config['parameters']) ? $config['parameters'] : array(), $this->container->getRequest());
     }
 
