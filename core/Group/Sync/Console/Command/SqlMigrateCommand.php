@@ -26,15 +26,21 @@ class SqlMigrateCommand extends Command
         if (is_dir($sqlDir)) {
             $dir = opendir($sqlDir);
 
+            $fileNameList = [];
             while (($file = readdir($dir)) !== false) {
                 $file = explode(".", $file);
                 $fileName = $file[0];
 
                 if ($fileName && isset($file[1]) && $file[1] == "php") {
-                    $this->filterLockFile($fileName);
+                    $fileNameList[] = $fileName;
                 }
             }
             closedir($dir);
+
+            sort($fileNameList);
+            foreach ($fileNameList as $fileName) {
+                $this->filterLockFile($fileName);
+            }
         }
     }
 
